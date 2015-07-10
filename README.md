@@ -1,17 +1,19 @@
-== Bergamota
+#Bergamota
 
 Fingerprint identification library.
 
-.BUILD:
-	`make clean all`
-	or
-	`make clean debug`
+###BUILD
 
-.OUTPUT:
-	`libbergamota-X.Y.a`
+`make clean all` or `make clean debug`
 
-.UNIT TESTS:
-	`make check`
+###OUTPUT
 
-.DEPENDENCIES:
-	"check" (Unit Testing Framework for C).
+`libbergamota-X.Y.a`
+
+###UNIT TESTS:
+
+`make check`
+
+###DEPENDENCIES:
+
+__check__ (Unit Testing Framework for C).
