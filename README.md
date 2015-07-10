@@ -1,11 +1,15 @@
 Bergamota
 =========
 
-Fingerprint identification library
+Fingerprint identification library.
 
-TOOLS:
-- To be able to run unit tests, you need to install "Check" (Unit Testing Framework for C).
+BUILD:
+	make clean all
+	or
+	make clean debug
 
-TODO:
-- Create more tests for BGM_create_context (more accurate, using db config to reduce database size);
-- Create more tests for BGM_identify (more accurate, using db config to reduce database size);
+UNIT TESTS:
+	make check
+
+DEPENDENCIES:
+	"check" (Unit Testing Framework for C).
