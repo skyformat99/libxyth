@@ -10,10 +10,10 @@ Fingerprint identification library.
 
 `libbergamota-X.Y.a`
 
-###UNIT TESTS:
+###UNIT TESTS
 
 `make check`
 
-###DEPENDENCIES:
+###DEPENDENCIES
 
 __check__ (Unit Testing Framework for C).
