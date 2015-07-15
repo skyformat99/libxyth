@@ -1,4 +1,4 @@
-#Bergamota
+#libbergamota
 
 Fingerprint identification library.
 
