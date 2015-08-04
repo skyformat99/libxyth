@@ -65,15 +65,19 @@ START_TEST(simple_success)
     BGM_status status;
     unsigned int old_next_tpl_id;
     unsigned int old_tpl_counter;
+    unsigned int tpl_counter;
     unsigned int id = 1000; // Any number...
 
     old_next_tpl_id = ctx.db.next_template_id;
-    old_tpl_counter = ctx.db.templates_counter;
+    BGM_get_template_counter(&ctx, &old_tpl_counter);
 
     status = BGM_add_template(&ctx, &tpl, &id);
+
+    BGM_get_template_counter(&ctx, &tpl_counter);
+
     ck_assert_int_eq(status, BGM_SUCCESS);
     ck_assert_int_eq(id, old_next_tpl_id);
-    ck_assert_int_eq(ctx.db.templates_counter, old_tpl_counter + 1);
+    ck_assert_int_eq(tpl_counter, old_tpl_counter + 1);
     ck_assert_int_eq(ctx.db.next_template_id, old_next_tpl_id + 1);
     ck_assert_int_eq(ctx.db.alloc_counter[290], 32);
      // Index calculated using 'index_calc.py'

@@ -124,6 +124,9 @@ BGM_status BGM_set_match_thresholds(
                                      unsigned int template_threshold,
                                      unsigned int failure_threshold
                                    );
+
+BGM_status BGM_get_template_counter(struct BGM_context *ctx, unsigned int *tpl_counter);
+
 #ifdef __cplusplus
 }
 #endif // __cplusplus

@@ -9,6 +9,8 @@
  * Proprietary and confidential
  */
 
+//TODO: fix the image mask, a mechanism that removes border minutiae.
+
 #include <bergamota.h>
 #include <template.h>
 #include <debug.h>

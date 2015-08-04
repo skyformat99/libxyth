@@ -225,3 +225,26 @@ void BGM_destroy_context(struct BGM_context *ctx)
         PRINT_IF_NULL(ctx);
     }
 }
+
+BGM_status BGM_get_template_counter(struct BGM_context *ctx, unsigned int *tpl_counter)
+{
+    BGM_status status;
+
+    if (ctx == NULL || tpl_counter == NULL) {
+        PRINT_IF_NULL(ctx);
+        PRINT_IF_NULL(tpl_counter);
+        status = BGM_E_INVALID_PARAMETER;
+        PRINT_IF_ERROR(status);
+        return status;
+    }
+
+    if (_BGM_IS_CONTEXT_INITIALIZED(*ctx)) {
+        *tpl_counter = ctx->db.templates_counter;
+        status = BGM_SUCCESS;
+    } else {
+        status = BGM_E_NOT_INITIALIZED;
+    }
+
+    PRINT_IF_ERROR(status);
+    return status;
+}

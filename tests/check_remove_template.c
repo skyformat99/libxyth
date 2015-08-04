@@ -42,16 +42,20 @@ START_TEST(simple_success)
 {
     BGM_status status;
     unsigned int old_tpl_counter;
+    unsigned int tpl_counter;
     unsigned int id;
 
     status = BGM_add_template(&ctx, &tpl, &id);
     ck_assert_int_eq(status, BGM_SUCCESS);
 
-    old_tpl_counter = ctx.db.templates_counter;
+    BGM_get_template_counter(&ctx, &old_tpl_counter);
 
     status = BGM_remove_template(&ctx, &tpl, id);
+
+    BGM_get_template_counter(&ctx, &tpl_counter);
+
     ck_assert_int_eq(status, BGM_SUCCESS);
-    ck_assert_int_eq(ctx.db.templates_counter, old_tpl_counter - 1);
+    ck_assert_int_eq(tpl_counter, old_tpl_counter - 1);
 }
 END_TEST
 
