@@ -32,6 +32,14 @@
 //    int empty; // Indica se a linha está vazia (invalida os campos acima)
 //};
 
+#define OUTLINE_BORDER_WIDTH 5 // In pixels
+
+struct _BGM_image_line_boundaries {
+    unsigned int first_nonwhite_pixel;
+    unsigned int last_nonwhite_pixel;
+    bool all_white;
+};
+
 /* Copied from NBIS package's bz_sort.c */
 int sort_quality_decreasing(const void *a, const void *b)
 {
@@ -70,80 +78,7 @@ int sort_x_y(const void *a, const void *b)
     return 0;
 }
 
-static BGM_status _BGM_mindtct_get_minutiae(
-                                             unsigned char *buffer,
-                                             unsigned int width,
-                                             unsigned int height,
-                                             unsigned int pixel_depth,
-                                             unsigned int resolution_in_ppi,
-                                             struct BGM_template *tpl,
-                                             unsigned int max_num_minutiae
-                                           )
-{
-    double pixels_per_mm = (resolution_in_ppi / 25.4);
-    int bw, bh, bd;
-    unsigned char *bdata;
-    int *direction_map, *low_contrast_map, *low_flow_map;
-    int *high_curve_map, *quality_map;
-    int map_w, map_h;
-    MINUTIAE *minutiae;
-    int ox, oy, ot;
-    int ret;
-    struct minutiae_struct minutiae_nist_form[2000];
-    BGM_status status;
 
-    // Get minutiae using mindtct's get_minutiae()
-    ret = get_minutiae(&minutiae, &quality_map, &direction_map,
-        &low_contrast_map, &low_flow_map, &high_curve_map,
-        &map_w, &map_h, &bdata, &bw, &bh, &bd,
-        buffer, width, height, pixel_depth, pixels_per_mm, &lfsparms_V2);
-
-    // A bit paranoid, but this is a external library.
-    if (ret == 0 && minutiae != NULL && minutiae->num > 0) {
-        free(quality_map);
-        free(direction_map);
-        free(low_contrast_map);
-        free(low_flow_map);
-        free(high_curve_map);
-        free(bdata);
-        // Convert minutiae to NIST form (system origin and angle differences)
-        for (int i = 0; i < minutiae->num; i++) {
-            lfs2nist_minutia_XYT(&ox, &oy, &ot, minutiae->list[i], width, height);
-            minutiae_nist_form[i].col[0] = ox;
-            minutiae_nist_form[i].col[1] = oy;
-            minutiae_nist_form[i].col[2] = ot;
-        }
-        // Sort by quality.
-        qsort((void *) &minutiae_nist_form, (size_t) minutiae->num,
-              sizeof (struct minutiae_struct), sort_quality_decreasing);
-
-        // If found too many minutiae, then discard the ones with less quality.
-        if ((unsigned int)minutiae->num > max_num_minutiae) {
-            minutiae->num = max_num_minutiae;
-        }
-        // Sort by X, then by Y
-        qsort((void *) &minutiae_nist_form, (size_t) minutiae->num,
-              sizeof (struct minutiae_struct), sort_x_y);
-
-        // Copy data to a bergamota struct
-        for (int i = 0; i < minutiae->num; i++) {
-            tpl->minutiae[i].id = i;
-            tpl->minutiae[i].x = minutiae_nist_form[i].col[0];
-            tpl->minutiae[i].y = minutiae_nist_form[i].col[1];
-            tpl->minutiae[i].angle = minutiae_nist_form[i].col[2];
-        }
-        tpl->num_minutiae = minutiae->num;
-
-        free_minutiae(minutiae);
-
-        status = BGM_SUCCESS;
-    } else {
-        status = BGM_E_MINUTIAE_EXTRACTOR_ERROR;
-    }
-
-    PRINT_IF_ERROR(status);
-    return status;
-}
 
 ///*
 // * Registra onde começa e termina cada linha da imagem.
@@ -173,6 +108,146 @@ static BGM_status _BGM_mindtct_get_minutiae(
 
 //    return 0;
 //}
+
+// Assuming grayscale image (depth= 8 bits)
+static void _BGM_build_image_outline(unsigned char *img_buffer,
+                                     unsigned int width,
+                                     unsigned int height,
+                                     struct _BGM_image_line_boundaries *outline)
+{
+    unsigned char *line;
+
+    memset(outline, 0, sizeof(*outline) * height);
+
+    line = img_buffer;
+
+    for (unsigned int y = 0; y < height; y++) {
+        unsigned int x;
+        unsigned int line_index = (height - 1) - y;
+        // Go from left to right, looking for the first non-white pixel.
+        for (x = 0; line[x] == 0xff && x < width; x++);
+        // The line is all white.
+        if (x == width) {
+            outline[line_index].all_white = TRUE;
+            line += width;
+            continue;
+        }
+        outline[line_index].first_nonwhite_pixel = x;
+        // Go from right to left, looking for the last non-white pixel.
+        for (x = width - 1; line[x] == 0xff; x--);
+        outline[line_index].last_nonwhite_pixel = x;
+        outline[line_index].all_white = FALSE;
+        line += width;
+    }
+}
+
+static bool _BGM_is_a_frontier_minutia(
+        struct _BGM_image_line_boundaries *outline,
+        struct _BGM_minutia *min)
+{
+
+    if (!outline[min->y].all_white) {
+        if (min->x < outline[min->y].first_nonwhite_pixel + OUTLINE_BORDER_WIDTH ||
+            min->x > outline[min->y].last_nonwhite_pixel - OUTLINE_BORDER_WIDTH) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+
+    // This is a BUG, return TRUE to reduce the damage.
+    return TRUE;
+}
+
+static BGM_status _BGM_mindtct_get_minutiae(
+                                             unsigned char *buffer,
+                                             unsigned int width,
+                                             unsigned int height,
+                                             unsigned int pixel_depth,
+                                             unsigned int resolution_in_ppi,
+                                             struct BGM_template *tpl,
+                                             unsigned int max_num_minutiae
+                                           )
+{
+    double pixels_per_mm = (resolution_in_ppi / 25.4);
+    int bw, bh, bd;
+    unsigned char *bdata;
+    int *direction_map, *low_contrast_map, *low_flow_map;
+    int *high_curve_map, *quality_map;
+    int map_w, map_h;
+    MINUTIAE *minutiae;
+    int ox, oy, ot;
+    int ret;
+    struct minutiae_struct minutiae_nist_form[2000];
+    BGM_status status;
+    unsigned int min_index;
+    struct _BGM_image_line_boundaries *outline;
+
+    // Get minutiae using mindtct's get_minutiae()
+    ret = get_minutiae(&minutiae, &quality_map, &direction_map,
+        &low_contrast_map, &low_flow_map, &high_curve_map,
+        &map_w, &map_h, &bdata, &bw, &bh, &bd,
+        buffer, width, height, pixel_depth, pixels_per_mm, &lfsparms_V2);
+
+    // A bit paranoid, but this is an external library.
+    if (ret == 0 && minutiae != NULL && minutiae->num > 0) {
+        free(quality_map);
+        free(direction_map);
+        free(low_contrast_map);
+        free(low_flow_map);
+        free(high_curve_map);
+        free(bdata);
+        // Convert minutiae to NIST form (system origin and angle differences)
+        for (int i = 0; i < minutiae->num; i++) {
+            lfs2nist_minutia_XYT(&ox, &oy, &ot, minutiae->list[i], width, height);
+            minutiae_nist_form[i].col[0] = ox;
+            minutiae_nist_form[i].col[1] = oy;
+            minutiae_nist_form[i].col[2] = ot;
+            minutiae_nist_form[i].col[3] = (int)(minutiae->list[i]->reliability * 100);
+        }
+        // Sort by quality.
+        qsort((void *) &minutiae_nist_form, (size_t) minutiae->num,
+              sizeof (struct minutiae_struct), sort_quality_decreasing);
+
+        // If found too many minutiae, then discard the ones with less quality.
+        if ((unsigned int)minutiae->num > max_num_minutiae) {
+            minutiae->num = max_num_minutiae;
+        }
+        // Sort by X, then by Y
+        qsort((void *) &minutiae_nist_form, (size_t) minutiae->num,
+              sizeof (struct minutiae_struct), sort_x_y);
+        // Create image outline, to detect frontier minutiae
+        outline = malloc(sizeof(*outline) * height);
+        if (outline != NULL) {
+            _BGM_build_image_outline(buffer, width, height, outline);
+            // Copy data to a bergamota struct
+            min_index = 0;
+            for (int i = 0; i < minutiae->num; i++) {
+                tpl->minutiae[min_index].id = min_index;
+                tpl->minutiae[min_index].x = minutiae_nist_form[i].col[0];
+                tpl->minutiae[min_index].y = minutiae_nist_form[i].col[1];
+                tpl->minutiae[min_index].angle = minutiae_nist_form[i].col[2];
+
+                if (!_BGM_is_a_frontier_minutia(outline, &tpl->minutiae[min_index])) {
+                    min_index++;
+                }
+            }
+            tpl->num_minutiae = min_index;
+            status = BGM_SUCCESS;
+            free(outline);
+        } else {
+            status = BGM_E_NO_MEMORY;
+        }
+
+        free_minutiae(minutiae);
+    } else {
+        status = BGM_E_MINUTIAE_EXTRACTOR_ERROR;
+    }
+
+    PRINT_IF_ERROR(status);
+    return status;
+}
+
 
 ///*
 // * Retira do template tpl_in as minúcias que ficam na borda da imagem, e salva o novo template em tpl_out.
