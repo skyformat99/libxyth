@@ -20,19 +20,7 @@
 
 #include "template-common.h"
 
-//#include <fcntl.h>
-
-//#define FILTER_BORDER 5 // Faixa, em pixels, ignorada pelo filtro
-///*
-// * Máscara indicando a área útil de uma linha da imagem
-// */
-//struct line_mask {
-//    int begin; // Início da área útil
-//    int end; // Fim da área útil
-//    int empty; // Indica se a linha está vazia (invalida os campos acima)
-//};
-
-#define OUTLINE_BORDER_WIDTH 5 // In pixels
+#define MINUTIA_MIN_RELIABILITY 45
 
 struct _BGM_image_line_boundaries {
     unsigned int first_nonwhite_pixel;
@@ -78,87 +66,6 @@ int sort_x_y(const void *a, const void *b)
     return 0;
 }
 
-
-
-///*
-// * Registra onde começa e termina cada linha da imagem.
-// */
-//int read_img_mask(struct RawImageData *img, struct line_mask* img_mask)
-//{
-//    char *line;
-//    int x;
-
-//    memset(img_mask, 0, sizeof(struct line_mask) * img->height);
-
-//    line = (char*)&img[0];
-
-//    for (int y = 0; y < img->height; y++) {
-//        int line_index = (img->height - 1) - y;
-//        for (x = 0; line[x] == (char)0xff && x < img->width; x++);
-//        if (x == img->width) {
-//            img_mask[line_index].empty = 1;
-//            line += img->width;
-//            continue;
-//        }
-//        img_mask[line_index].begin = x;
-//        for (x = img->width - 1; line[x] == (char)0xff; x--);
-//        img_mask[line_index].end = x;
-//        line += img->width;
-//    }
-
-//    return 0;
-//}
-
-// Assuming grayscale image (depth= 8 bits)
-static void _BGM_build_image_outline(unsigned char *img_buffer,
-                                     unsigned int width,
-                                     unsigned int height,
-                                     struct _BGM_image_line_boundaries *outline)
-{
-    unsigned char *line;
-
-    memset(outline, 0, sizeof(*outline) * height);
-
-    line = img_buffer;
-
-    for (unsigned int y = 0; y < height; y++) {
-        unsigned int x;
-        unsigned int line_index = (height - 1) - y;
-        // Go from left to right, looking for the first non-white pixel.
-        for (x = 0; line[x] == 0xff && x < width; x++);
-        // The line is all white.
-        if (x == width) {
-            outline[line_index].all_white = TRUE;
-            line += width;
-            continue;
-        }
-        outline[line_index].first_nonwhite_pixel = x;
-        // Go from right to left, looking for the last non-white pixel.
-        for (x = width - 1; line[x] == 0xff; x--);
-        outline[line_index].last_nonwhite_pixel = x;
-        outline[line_index].all_white = FALSE;
-        line += width;
-    }
-}
-
-static bool _BGM_is_a_frontier_minutia(
-        struct _BGM_image_line_boundaries *outline,
-        struct _BGM_minutia *min)
-{
-
-    if (!outline[min->y].all_white) {
-        if (min->x < outline[min->y].first_nonwhite_pixel + OUTLINE_BORDER_WIDTH ||
-            min->x > outline[min->y].last_nonwhite_pixel - OUTLINE_BORDER_WIDTH) {
-            return TRUE;
-        } else {
-            return FALSE;
-        }
-    }
-
-    // This is a BUG, return TRUE to reduce the damage.
-    return TRUE;
-}
-
 static BGM_status _BGM_mindtct_get_minutiae(
                                              unsigned char *buffer,
                                              unsigned int width,
@@ -181,7 +88,6 @@ static BGM_status _BGM_mindtct_get_minutiae(
     struct minutiae_struct minutiae_nist_form[2000];
     BGM_status status;
     unsigned int min_index;
-    struct _BGM_image_line_boundaries *outline;
 
     // Get minutiae using mindtct's get_minutiae()
     ret = get_minutiae(&minutiae, &quality_map, &direction_map,
@@ -216,29 +122,23 @@ static BGM_status _BGM_mindtct_get_minutiae(
         // Sort by X, then by Y
         qsort((void *) &minutiae_nist_form, (size_t) minutiae->num,
               sizeof (struct minutiae_struct), sort_x_y);
-        // Create image outline, to detect frontier minutiae
-        outline = malloc(sizeof(*outline) * height);
-        if (outline != NULL) {
-            _BGM_build_image_outline(buffer, width, height, outline);
-            // Copy data to a bergamota struct
-            min_index = 0;
-            for (int i = 0; i < minutiae->num; i++) {
-                tpl->minutiae[min_index].id = min_index;
-                tpl->minutiae[min_index].x = minutiae_nist_form[i].col[0];
-                tpl->minutiae[min_index].y = minutiae_nist_form[i].col[1];
-                tpl->minutiae[min_index].angle = minutiae_nist_form[i].col[2];
+        // Copy data to a bergamota struct
+        min_index = 0;
+        for (int i = 0; i < minutiae->num; i++) {
+            tpl->minutiae[min_index].neighbors = NULL;
+            tpl->minutiae[min_index].num_neighbors = 0;
 
-                if (!_BGM_is_a_frontier_minutia(outline, &tpl->minutiae[min_index])) {
-                    min_index++;
-                }
+            tpl->minutiae[min_index].id = min_index;
+            tpl->minutiae[min_index].x = minutiae_nist_form[i].col[0];
+            tpl->minutiae[min_index].y = minutiae_nist_form[i].col[1];
+            tpl->minutiae[min_index].angle = minutiae_nist_form[i].col[2];
+
+            if (minutiae_nist_form[i].col[3] >= MINUTIA_MIN_RELIABILITY) {
+                min_index++;
             }
-            tpl->num_minutiae = min_index;
-            status = BGM_SUCCESS;
-            free(outline);
-        } else {
-            status = BGM_E_NO_MEMORY;
         }
-
+        tpl->num_minutiae = min_index;
+        status = BGM_SUCCESS;
         free_minutiae(minutiae);
     } else {
         status = BGM_E_MINUTIAE_EXTRACTOR_ERROR;
@@ -247,91 +147,6 @@ static BGM_status _BGM_mindtct_get_minutiae(
     PRINT_IF_ERROR(status);
     return status;
 }
-
-
-///*
-// * Retira do template tpl_in as minúcias que ficam na borda da imagem, e salva o novo template em tpl_out.
-// * As minúcias detectadas na borda da imagem, normalmente, são inúteis para a identificação. Elas surgem da
-// * detecção de terminações das rugas, terminações que só aparecem porque chegou ao fim do dedo.
-// */
-//int filter_min(struct Template *tpl_in, int width, int height, struct line_mask *img_mask, struct Template *tpl_out)
-//{
-//    int first, last;
-//    int count;
-
-//    /* Vai até a primeira linha não vazia da imagem */
-//    for (first = 0; first < height - 1 && img_mask[first].empty; first++);
-//    /* Se todas as linhas úteis estiverem vazias... */
-//    if (first > (height - 1 - FILTER_BORDER)) {
-//        printf("Erro no filtro 1.\n");
-//        return -1;
-//    }
-//    /* Com o início já determinado, pula a borda */
-//    first += FILTER_BORDER;
-//    /* Acha a última linha não vazia da imagem */
-//    for (last = height - 1; last > 0 && img_mask[last].empty; last--);
-//    /* Se todas as linhas úteis estiverem vazias... [PARANOIA] */
-//    if (last < FILTER_BORDER) {
-//        printf("Erro no filtro 2.\n");
-//        return -1;
-//    }
-//    /* Com o fim já determinado, pula a borda */
-//    last -= FILTER_BORDER;
-//    count = 0;
-//    /* Para cada minúcia... */
-//    for (int i = 0; i < tpl_in->mins_size; i++) {
-//        int x = tpl_in->mins[i].x;
-//        int y = tpl_in->mins[i].y;
-//        /* Se estiver dentro do intervalo no eixo Y (geral) */
-//        if (y > first && y < last) {
-//            /* Se estiver dentro do intervalo no eixo X (por linha), minúcia boa */
-//            if (x > img_mask[y].begin + FILTER_BORDER && x < img_mask[y].end - FILTER_BORDER) {
-//                tpl_out->mins[count].x = x;
-//                tpl_out->mins[count].y = y;
-//                tpl_out->mins[count].theta = tpl_in->mins[i].theta;
-//                tpl_out->mins[count].id = count;
-//                count++;
-//            }
-//        }
-//    }
-//    tpl_out->mins_size = count;
-
-//    return 0;
-//}
-
-///**
-// * Cria um template a partir de uma imagem raw.
-// * @param [in] img Imagem de onde serão extraídas as minúcias
-// * @param [out] tpl Ponteiro para onde será armazenado o novo template.
-// * @return Retorna 0 em caso de sucesso, caso contrário, um valor negativo.
-// */
-//int create_tpl(struct RawImageData *img, struct Template *tpl)
-//{
-//    int ret;
-//    struct line_mask img_mask[img->height];
-//    struct Template local_tpl;
-//    /* Extração das minúcias */
-//    ret = xtract_min(img, &local_tpl);
-//    if (ret < 0) {
-//        printf("%s: xtract_min falhou\n", __FUNCTION__);
-//        return -1;
-//    }
-//    /* Lê onde começa e onde termina a imagem em cada linha */
-//    ret = read_img_mask(img, img_mask);
-//    if (ret < 0) {
-//        printf("%s: read_img_mask falhou\n", __FUNCTION__);
-//        return -1;
-//    }
-//    /* Retira do template preliminar as minúcias detectadas na borda da imagem.
-//     * Armazena em tpl o template já filtrado */
-//    ret = filter_min(&local_tpl, img->width, img->height, img_mask, tpl);
-//    if (ret < 0) {
-//        printf("%s: filter_min falhou\n", __FUNCTION__);
-//        return -1;
-//    }
-
-//    return 0;
-//}
 
 static BGM_status _BGM_template_from_raw_image(
                                                 unsigned char *buffer,

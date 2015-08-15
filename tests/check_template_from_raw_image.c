@@ -26,12 +26,7 @@ START_TEST(simple_success)
                                          test_raw_image1_ppi, &tpl, 100, 10);
     ck_assert_int_eq(status, BGM_SUCCESS);
     ck_assert_int_eq(tpl.magic_num, _BGM_TEMPLATE_INIT_MAGIC_NUMBER);
-    ck_assert_int_eq(tpl.num_minutiae, 49);
-
-    // To print the template
-//    for (int i = 0; i < tpl.num_minutiae; i++) {
-//        printf("%d %d %d\n", tpl.minutiae[i].x, tpl.minutiae[i].y, tpl.minutiae[i].angle);
-//    }
+    ck_assert_int_eq(tpl.num_minutiae, 34);
 
     BGM_destroy_template(&tpl);
 }
