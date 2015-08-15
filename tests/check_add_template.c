@@ -35,8 +35,8 @@
 */
 #define XYT_2MIN_5X5 "0 0 90\n 4 4 270\n"
 
-struct BGM_template tpl;
-struct BGM_context ctx;
+struct BGM_template tpl = {0};
+struct BGM_context ctx = {0};
 
 void add_template_setup()
 {
@@ -106,7 +106,7 @@ END_TEST
 START_TEST(invalid_context)
 {
     BGM_status status;
-    struct BGM_context invalid_ctx;
+    struct BGM_context invalid_ctx = {0};
     unsigned int id;
 
     status = BGM_add_template(&invalid_ctx, &tpl, &id);
@@ -127,7 +127,7 @@ END_TEST
 START_TEST(invalid_template)
 {
     BGM_status status;
-    struct BGM_template invalid_tpl;
+    struct BGM_template invalid_tpl = {0};
     unsigned int id;
 
     status = BGM_add_template(&ctx, &invalid_tpl, &id);
@@ -138,7 +138,7 @@ END_TEST
 START_TEST(null_id)
 {
     BGM_status status;
-    struct BGM_template invalid_tpl;
+    struct BGM_template invalid_tpl = {0};
 
     status = BGM_add_template(&ctx, &invalid_tpl, NULL);
     ck_assert_int_eq(status, BGM_E_INVALID_PARAMETER);

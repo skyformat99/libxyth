@@ -18,7 +18,7 @@
 
 START_TEST(simple_success)
 {
-    struct BGM_template tpl;
+    struct BGM_template tpl = {0};
     BGM_status status;
 
     status = BGM_template_from_raw_image(test_raw_image1, test_raw_image1_width,
@@ -26,7 +26,7 @@ START_TEST(simple_success)
                                          test_raw_image1_ppi, &tpl, 100, 10);
     ck_assert_int_eq(status, BGM_SUCCESS);
     ck_assert_int_eq(tpl.magic_num, _BGM_TEMPLATE_INIT_MAGIC_NUMBER);
-    ck_assert_int_eq(tpl.num_minutiae, 65);
+    ck_assert_int_eq(tpl.num_minutiae, 49);
 
     // To print the template
 //    for (int i = 0; i < tpl.num_minutiae; i++) {

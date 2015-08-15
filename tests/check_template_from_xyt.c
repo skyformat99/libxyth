@@ -46,7 +46,7 @@
 
 START_TEST(basic_internals)
 {
-    struct BGM_template tpl;
+    struct BGM_template tpl = {0};
     BGM_status status;
 
     status = BGM_template_from_xyt(XYT_2MIN_5X5, &tpl, 64, 1);
@@ -75,12 +75,13 @@ START_TEST(basic_internals)
     ck_assert_int_eq(tpl.minutiae[1].neighbors[0].relative_y, -4);
     ck_assert_int_eq(tpl.minutiae[1].neighbors[0].relative_angle, 180);
 
+    BGM_destroy_template(&tpl);
 }
 END_TEST
 
 START_TEST(null_xyt)
 {
-    struct BGM_template tpl;
+    struct BGM_template tpl = {0};
     BGM_status status;
 
     status = BGM_template_from_xyt(NULL, &tpl, 64, 5);
@@ -91,7 +92,7 @@ END_TEST
 
 START_TEST(empty_xyt)
 {
-    struct BGM_template tpl;
+    struct BGM_template tpl = {0};
     BGM_status status;
 
     status = BGM_template_from_xyt("", &tpl, 64, 5);
@@ -102,7 +103,7 @@ END_TEST
 
 START_TEST(neg_x)
 {
-    struct BGM_template tpl;
+    struct BGM_template tpl = {0};
     BGM_status status;
 
     status = BGM_template_from_xyt(XYT_NEG_X, &tpl, 64, 5);
@@ -113,7 +114,7 @@ END_TEST
 
 START_TEST(neg_y)
 {
-    struct BGM_template tpl;
+    struct BGM_template tpl = {0};
     BGM_status status;
 
     status = BGM_template_from_xyt(XYT_NEG_Y, &tpl, 64, 5);
@@ -124,7 +125,7 @@ END_TEST
 
 START_TEST(neg_t)
 {
-    struct BGM_template tpl;
+    struct BGM_template tpl = {0};
     BGM_status status;
 
     status = BGM_template_from_xyt(XYT_NEG_T, &tpl, 64, 5);
@@ -135,7 +136,7 @@ END_TEST
 
 START_TEST(t_too_big)
 {
-    struct BGM_template tpl;
+    struct BGM_template tpl = {0};
     BGM_status status;
 
     status = BGM_template_from_xyt(XYT_T_2BIG, &tpl, 64, 5);
@@ -155,7 +156,7 @@ END_TEST
 
 START_TEST(exceed_max_min)
 {
-    struct BGM_template tpl;
+    struct BGM_template tpl = {0};
     BGM_status status;
 
     status = BGM_template_from_xyt(XYT_OK, &tpl, 10, 5);
@@ -168,7 +169,7 @@ END_TEST
 
 START_TEST(too_many_neighbors)
 {
-    struct BGM_template tpl;
+    struct BGM_template tpl = {0};
     BGM_status status;
 
     status = BGM_template_from_xyt(XYT_OK, &tpl, 64, 21);
@@ -179,7 +180,7 @@ END_TEST
 
 START_TEST(simple_success)
 {
-    struct BGM_template tpl;
+    struct BGM_template tpl = {0};
     BGM_status status;
 
     status = BGM_template_from_xyt(XYT_OK, &tpl, 64, 5);

@@ -15,7 +15,7 @@
 START_TEST(simple_success)
 {
     BGM_status status;
-    struct BGM_context ctx;
+    struct BGM_context ctx = {0};
 
     status = BGM_create_context(&ctx, NULL);
     ck_assert_int_eq(status, BGM_SUCCESS);
@@ -33,7 +33,7 @@ END_TEST
 
 START_TEST(invalid_context)
 {
-    struct BGM_context ctx;
+    struct BGM_context ctx = {0};
 
     BGM_destroy_context(&ctx);
     ck_assert_int_ne(ctx.magic_number, _BGM_CONTEXT_INIT_MAGIC_NUMBER);

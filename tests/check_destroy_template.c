@@ -26,7 +26,7 @@ END_TEST
 
 START_TEST(invalid_tpl)
 {
-    struct BGM_template tpl;
+    struct BGM_template tpl = {0};
 
     BGM_destroy_template(&tpl);
     ck_assert_int_ne(tpl.magic_num, _BGM_TEMPLATE_INIT_MAGIC_NUMBER);
@@ -35,7 +35,7 @@ END_TEST
 
 START_TEST(simple_success)
 {
-    struct BGM_template tpl;
+    struct BGM_template tpl = {0};
     BGM_status status;
 
     status = BGM_template_from_xyt(XYT_OK, &tpl, 64, 5);

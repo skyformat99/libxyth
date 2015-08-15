@@ -16,18 +16,20 @@
 START_TEST(simple_success)
 {
     BGM_status status;
-    struct BGM_context ctx;
+    struct BGM_context ctx = {0};
 
     status = BGM_create_context(&ctx, NULL);
     ck_assert_int_eq(status, BGM_SUCCESS);
     ck_assert_int_eq(ctx.magic_number, _BGM_CONTEXT_INIT_MAGIC_NUMBER);
+
+    BGM_destroy_context(&ctx);
 }
 END_TEST
 
 START_TEST(null_context)
 {
     BGM_status status;
-    struct BGM_context ctx;
+    struct BGM_context ctx = {0};
 
     status = BGM_create_context(NULL, NULL);
     ck_assert_int_eq(status, BGM_E_INVALID_PARAMETER);
