@@ -69,7 +69,6 @@ _BGM_create_database(struct BGM_context *ctx)
     unsigned int x_groups, y_groups, t_groups;
 
     ctx->db.next_template_id = 0;
-    // TODO: Create a macro or function to get templates_counter.
     ctx->db.templates_counter = 0;
 
     if (ctx->db_cfg.degrees_per_group != 0 && ctx->db_cfg.pixels_per_group != 0) {
