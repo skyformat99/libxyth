@@ -9,7 +9,6 @@
  * Proprietary and confidential
  */
 
-
 #ifndef MINUTIA_H
 #define MINUTIA_H
 
@@ -19,7 +18,7 @@
  * A minutia, i.e. ridge ending or bifurcation.
  */
 struct _BGM_minutia {
-	unsigned int id;
+    unsigned int id;
     unsigned int x;
     unsigned int y;
     unsigned int angle;

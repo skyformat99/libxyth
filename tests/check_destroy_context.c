@@ -40,7 +40,8 @@ START_TEST(invalid_context)
 }
 END_TEST
 
-TCase *destroy_context_tcase(void)
+TCase *
+destroy_context_tcase(void)
 {
     TCase *tcase;
 

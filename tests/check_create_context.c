@@ -9,7 +9,6 @@
  * Proprietary and confidential
  */
 
-
 #include <check.h>
 #include <bergamota.h>
 
@@ -37,7 +36,8 @@ START_TEST(null_context)
 }
 END_TEST
 
-TCase *create_context_tcase(void)
+TCase *
+create_context_tcase(void)
 {
     TCase *tcase;
 

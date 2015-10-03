@@ -9,7 +9,6 @@
  * Proprietary and confidential
  */
 
-
 #ifndef CONFIG_H
 #define CONFIG_H
 
@@ -37,15 +36,15 @@
 */
 
 // Template config.
-#define MAX_MINUTIAE_PER_TEMPLATE_DFL   64
-#define NEIGHBORS_PER_MINUTIAE_DFL      20
+#define MAX_MINUTIAE_PER_TEMPLATE_DFL 64
+#define NEIGHBORS_PER_MINUTIAE_DFL 20
 
 // Match config.
-#define MATCH_X_TOLERANCE_DFL           5
-#define MATCH_Y_TOLERANCE_DFL           5
-#define MATCH_T_TOLERANCE_DFL           7
-#define MATCH_MINUTIA_THRESHOLD_DFL     15
-#define MATCH_TEMPLATE_THRESHOLD_DFL    1
-#define MATCH_FAILURE_THRESHOLD_DFL     0
+#define MATCH_X_TOLERANCE_DFL 5
+#define MATCH_Y_TOLERANCE_DFL 5
+#define MATCH_T_TOLERANCE_DFL 7
+#define MATCH_MINUTIA_THRESHOLD_DFL 15
+#define MATCH_TEMPLATE_THRESHOLD_DFL 1
+#define MATCH_FAILURE_THRESHOLD_DFL 0
 
 #endif // CONFIG_H

@@ -12,12 +12,12 @@
 #include <check.h>
 #include <bergamota.h>
 
-#define XYT_OK "1 2 3\n 4 5 6\n 7 8 9\n 10 11 12\n 13 14 15\n \
+#define XYT_OK \
+    "1 2 3\n 4 5 6\n 7 8 9\n 10 11 12\n 13 14 15\n \
                 16 17 18\n 19 20 21\n 22 23 24\n 25 26 27\n \
                 28 29 30\n 31 32 33\n 34 35 36\n 37 38 39\n \
                 40 41 42\n 43 44 45\n 46 47 48\n 49 50 51\n \
                 52 53 54\n 55 56 57\n 58 59 60\n 61 62 63\n"
-
 
 /*
     // Neighbors of this template
@@ -38,7 +38,8 @@
 struct BGM_template tpl = {0};
 struct BGM_context ctx = {0};
 
-void add_template_setup()
+void
+add_template_setup()
 {
     BGM_status status;
     struct BGM_database_config cfg;
@@ -54,7 +55,8 @@ void add_template_setup()
     ck_assert_int_eq(status, BGM_SUCCESS);
 }
 
-void add_template_teardown()
+void
+add_template_teardown()
 {
     BGM_destroy_template(&tpl);
     BGM_destroy_context(&ctx);
@@ -80,13 +82,14 @@ START_TEST(simple_success)
     ck_assert_int_eq(tpl_counter, old_tpl_counter + 1);
     ck_assert_int_eq(ctx.db.next_template_id, old_next_tpl_id + 1);
     ck_assert_int_eq(ctx.db.alloc_counter[290], 32);
-     // Index calculated using 'index_calc.py'
+    // Index calculated using 'index_calc.py'
     ck_assert_int_eq(ctx.db.data[290][0], 0);
     ck_assert_int_eq(ctx.db.data[290][1], 1);
     ck_assert_int_eq(ctx.db.data[290][2], (unsigned int)-1);
     // Make sure that the other groups don't have memory allocated.
     for (int i = 0; i < ctx.db.num_groups; i++) {
-        if (i == 290) continue;
+        if (i == 290)
+            continue;
         ck_assert_int_eq(ctx.db.data[i], NULL);
         ck_assert_int_eq(ctx.db.alloc_counter[i], 0);
     }
@@ -145,7 +148,8 @@ START_TEST(null_id)
 }
 END_TEST
 
-TCase *add_template_tcase(void)
+TCase *
+add_template_tcase(void)
 {
     TCase *tcase;
 
@@ -162,5 +166,3 @@ TCase *add_template_tcase(void)
 
     return tcase;
 }
-
-

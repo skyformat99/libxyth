@@ -19,8 +19,8 @@
 
 #include "common.h"
 
-
-static void _BGM_set_dfl_match_config (struct _BGM_match_config *cfg)
+static void
+_BGM_set_dfl_match_config(struct _BGM_match_config *cfg)
 {
     cfg->failure_threshold = MATCH_FAILURE_THRESHOLD_DFL;
     cfg->minutia_threshold = MATCH_MINUTIA_THRESHOLD_DFL;
@@ -30,7 +30,8 @@ static void _BGM_set_dfl_match_config (struct _BGM_match_config *cfg)
     cfg->y_tolerance = MATCH_Y_TOLERANCE_DFL;
 }
 
-static void _BGM_set_dfl_database_config (struct BGM_database_config *db_cfg)
+static void
+_BGM_set_dfl_database_config(struct BGM_database_config *db_cfg)
 {
     db_cfg->degrees_per_group = DB_DEGREES_PER_GROUP_DFL;
     db_cfg->max_x = DB_MAX_X_COORD_DFL;
@@ -39,24 +40,18 @@ static void _BGM_set_dfl_database_config (struct BGM_database_config *db_cfg)
     db_cfg->alloc_step = DB_ALLOC_STEP_DFL;
 }
 
-static BGM_status _BGM_set_custom_database_config(
-        struct BGM_database_config *in,
-        struct BGM_database_config *out
-        )
+static BGM_status
+_BGM_set_custom_database_config(struct BGM_database_config *in, struct BGM_database_config *out)
 {
     BGM_status status;
 
-    if (in->degrees_per_group < 360 &&
-        in->max_x > 0 &&
-        in->max_y > 0 &&
-        in->pixels_per_group > 0 &&
-        in->alloc_step > 0) {
-
+    if (in->degrees_per_group < 360 && in->max_x > 0 && in->max_y > 0 && in->pixels_per_group > 0
+        && in->alloc_step > 0) {
         out->degrees_per_group = in->degrees_per_group;
-        out->max_x             = in->max_x;
-        out->max_y             = in->max_y;
-        out->pixels_per_group  = in->pixels_per_group;
-        out->alloc_step        = in->alloc_step;
+        out->max_x = in->max_x;
+        out->max_y = in->max_y;
+        out->pixels_per_group = in->pixels_per_group;
+        out->alloc_step = in->alloc_step;
 
         status = BGM_SUCCESS;
     } else {
@@ -66,8 +61,8 @@ static BGM_status _BGM_set_custom_database_config(
     return status;
 }
 
-
-static BGM_status _BGM_create_database(struct BGM_context *ctx)
+static BGM_status
+_BGM_create_database(struct BGM_context *ctx)
 {
     BGM_status status;
     unsigned int num_groups;
@@ -81,7 +76,7 @@ static BGM_status _BGM_create_database(struct BGM_context *ctx)
         _BGM_calc_num_groups(ctx, &x_groups, &y_groups, &t_groups);
         num_groups = x_groups * y_groups * t_groups;
         // Each group will hold a pointer
-        ctx->db.data = calloc(num_groups, sizeof(int*));
+        ctx->db.data = calloc(num_groups, sizeof(int *));
         if (ctx->db.data != NULL) {
             // For each group, we have counter to control memory allocations
             ctx->db.alloc_counter = calloc(num_groups, sizeof(unsigned int));
@@ -104,7 +99,8 @@ static BGM_status _BGM_create_database(struct BGM_context *ctx)
     return status;
 }
 
-static void _BGM_destroy_database(struct BGM_context *ctx)
+static void
+_BGM_destroy_database(struct BGM_context *ctx)
 {
     if (ctx->db.alloc_counter != NULL) {
         if (ctx->db.data != NULL) {
@@ -124,10 +120,11 @@ static void _BGM_destroy_database(struct BGM_context *ctx)
     }
 }
 
-BGM_status BGM_set_match_tolerances(struct BGM_context *ctx,
-                                    unsigned int x_tol,
-                                    unsigned int y_tol,
-                                    unsigned int angle_tol)
+BGM_status
+BGM_set_match_tolerances(struct BGM_context *ctx,
+                         unsigned int x_tol,
+                         unsigned int y_tol,
+                         unsigned int angle_tol)
 {
     BGM_status status;
 
@@ -151,10 +148,11 @@ BGM_status BGM_set_match_tolerances(struct BGM_context *ctx,
     return status;
 }
 
-BGM_status BGM_set_match_thresholds(struct BGM_context *ctx,
-                                    unsigned int minutia_threshold,
-                                    unsigned int template_threshold,
-                                    unsigned int failure_threshold)
+BGM_status
+BGM_set_match_thresholds(struct BGM_context *ctx,
+                         unsigned int minutia_threshold,
+                         unsigned int template_threshold,
+                         unsigned int failure_threshold)
 {
     BGM_status status;
 
@@ -178,7 +176,8 @@ BGM_status BGM_set_match_thresholds(struct BGM_context *ctx,
     return status;
 }
 
-BGM_status BGM_create_context(struct BGM_context *ctx, struct BGM_database_config *db_cfg)
+BGM_status
+BGM_create_context(struct BGM_context *ctx, struct BGM_database_config *db_cfg)
 {
     BGM_status status;
 
@@ -212,7 +211,8 @@ BGM_status BGM_create_context(struct BGM_context *ctx, struct BGM_database_confi
     return status;
 }
 
-void BGM_destroy_context(struct BGM_context *ctx)
+void
+BGM_destroy_context(struct BGM_context *ctx)
 {
     if (ctx != NULL) {
         if (_BGM_IS_CONTEXT_INITIALIZED(*ctx)) {
@@ -226,7 +226,8 @@ void BGM_destroy_context(struct BGM_context *ctx)
     }
 }
 
-BGM_status BGM_get_template_counter(struct BGM_context *ctx, unsigned int *tpl_counter)
+BGM_status
+BGM_get_template_counter(struct BGM_context *ctx, unsigned int *tpl_counter)
 {
     BGM_status status;
 

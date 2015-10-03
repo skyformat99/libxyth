@@ -12,7 +12,8 @@
 #include <check.h>
 #include <bergamota.h>
 
-#define XYT_OK "1 2 3\n 4 5 6\n 7 8 9\n 10 11 12\n 13 14 15\n \
+#define XYT_OK \
+    "1 2 3\n 4 5 6\n 7 8 9\n 10 11 12\n 13 14 15\n \
                 16 17 18\n 19 20 21\n 22 23 24\n 25 26 27\n \
                 28 29 30\n 31 32 33\n 34 35 36\n 37 38 39\n \
                 40 41 42\n 43 44 45\n 46 47 48\n 49 50 51\n \
@@ -21,7 +22,8 @@
 struct BGM_template tpl3 = {0};
 struct BGM_context ctx1 = {0};
 
-void remove_template_setup()
+void
+remove_template_setup()
 {
     BGM_status status;
 
@@ -32,7 +34,8 @@ void remove_template_setup()
     ck_assert_int_eq(status, BGM_SUCCESS);
 }
 
-void remove_template_teardown()
+void
+remove_template_teardown()
 {
     BGM_destroy_template(&tpl3);
     BGM_destroy_context(&ctx1);
@@ -97,7 +100,8 @@ START_TEST(invalid_template)
 }
 END_TEST
 
-TCase *remove_template_tcase(void)
+TCase *
+remove_template_tcase(void)
 {
     TCase *tcase;
 

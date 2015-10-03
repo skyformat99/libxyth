@@ -18,7 +18,8 @@ Suite *template_suite(void);
 // From check_context.c
 Suite *context_suite(void);
 
-int main(void)
+int
+main(void)
 {
     int number_failed;
     SRunner *sr;

@@ -19,7 +19,8 @@
 
 #include "template-common.h"
 
-static BGM_status _BGM_parse_xyt_value(char *str, unsigned int *uint_value)
+static BGM_status
+_BGM_parse_xyt_value(char *str, unsigned int *uint_value)
 {
     long temp_value;
     char *end_ptr;
@@ -40,8 +41,8 @@ static BGM_status _BGM_parse_xyt_value(char *str, unsigned int *uint_value)
     return status;
 }
 
-
-static BGM_status _BGM_parse_xyt_line(char *line, unsigned int id, struct _BGM_minutia *minutia)
+static BGM_status
+_BGM_parse_xyt_line(char *line, unsigned int id, struct _BGM_minutia *minutia)
 {
     char *field;
     char *field_ctx;
@@ -88,10 +89,8 @@ static BGM_status _BGM_parse_xyt_line(char *line, unsigned int id, struct _BGM_m
     return status;
 }
 
-
-static BGM_status _BGM_parse_xyt_multiline(char                *xyt_buffer,
-                                           unsigned int         max_num_minutiae,
-                                           struct BGM_template *tpl)
+static BGM_status
+_BGM_parse_xyt_multiline(char *xyt_buffer, unsigned int max_num_minutiae, struct BGM_template *tpl)
 {
     char *line;
     char *line_ctx;
@@ -106,7 +105,8 @@ static BGM_status _BGM_parse_xyt_multiline(char                *xyt_buffer,
         do {
             if (line != NULL) {
                 PDEBUG("line: %s\n", line);
-                status = _BGM_parse_xyt_line(line, minutia_counter, &tpl->minutiae[minutia_counter]);
+                status =
+                    _BGM_parse_xyt_line(line, minutia_counter, &tpl->minutiae[minutia_counter]);
                 if (status == BGM_SUCCESS) {
                     minutia_counter++;
                 }
@@ -131,15 +131,14 @@ static BGM_status _BGM_parse_xyt_multiline(char                *xyt_buffer,
     return status;
 }
 
-
-
 /*
  * See documentation in 'include/template.h'
  */
-BGM_status BGM_template_from_xyt(char                *xyt_buffer,
-                                 struct BGM_template *tpl,
-                                 unsigned int         max_num_minutiae,
-                                 unsigned int         num_neighbors)
+BGM_status
+BGM_template_from_xyt(char *xyt_buffer,
+                      struct BGM_template *tpl,
+                      unsigned int max_num_minutiae,
+                      unsigned int num_neighbors)
 {
     char *buffer_copy;
     int buffer_size;

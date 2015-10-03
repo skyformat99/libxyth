@@ -9,7 +9,6 @@
  * Proprietary and confidential
  */
 
-
 #ifndef NEIGHBOR_H
 #define NEIGHBOR_H
 
@@ -17,10 +16,10 @@
  * The relative location of a minutia's neighbor, which is another minutia.
  */
 struct _BGM_neighbor {
-	int relative_x;
-	int relative_y;
-	unsigned int relative_angle;
-	unsigned int neighbor_id;
+    int relative_x;
+    int relative_y;
+    unsigned int relative_angle;
+    unsigned int neighbor_id;
 };
 
 #endif // NEIGHBOR_H

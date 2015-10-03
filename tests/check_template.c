@@ -20,7 +20,8 @@ TCase *destroy_template_tcase(void);
 // From check_template_from_raw_image.c
 TCase *template_from_raw_image_tcase(void);
 
-Suite *template_suite(void)
+Suite *
+template_suite(void)
 {
     Suite *suite;
 
@@ -29,7 +30,6 @@ Suite *template_suite(void)
     suite_add_tcase(suite, template_from_xyt_tcase());
     suite_add_tcase(suite, destroy_template_tcase());
     suite_add_tcase(suite, template_from_raw_image_tcase());
-
 
     return suite;
 }

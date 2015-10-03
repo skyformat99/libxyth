@@ -12,7 +12,8 @@
 #include <check.h>
 #include <bergamota.h>
 
-#define XYT_OK "1 2 3\n 4 5 6\n 7 8 9\n 10 11 12\n 13 14 15\n \
+#define XYT_OK \
+    "1 2 3\n 4 5 6\n 7 8 9\n 10 11 12\n 13 14 15\n \
                 16 17 18\n 19 20 21\n 22 23 24\n 25 26 27\n \
                 28 29 30\n 31 32 33\n 34 35 36\n 37 38 39\n \
                 40 41 42\n 43 44 45\n 46 47 48\n 49 50 51\n \
@@ -47,7 +48,8 @@ START_TEST(simple_success)
 }
 END_TEST
 
-TCase *destroy_template_tcase(void)
+TCase *
+destroy_template_tcase(void)
 {
     TCase *tcase;
 

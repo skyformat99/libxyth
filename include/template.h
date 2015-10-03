@@ -9,7 +9,6 @@
  * Proprietary and confidential
  */
 
-
 #ifndef TEMPLATE_H
 #define TEMPLATE_H
 
@@ -26,7 +25,6 @@ struct BGM_template {
     struct _BGM_minutia *minutiae;
 };
 
-#define _BGM_IS_TEMPLATE_INITIALIZED(tpl) \
-    ((tpl).magic_num == _BGM_TEMPLATE_INIT_MAGIC_NUMBER)
+#define _BGM_IS_TEMPLATE_INITIALIZED(tpl) ((tpl).magic_num == _BGM_TEMPLATE_INIT_MAGIC_NUMBER)
 
 #endif // TEMPLATE_H

@@ -28,7 +28,6 @@ struct _BGM_connection {
     struct _BGM_minutia *second_minutia;
 };
 
-
 /**
  * Given its scalar components (x,y), this function returns the direction of a vector.
  *
@@ -37,7 +36,8 @@ struct _BGM_connection {
  *
  * @return The angle in degrees (0 .. 359)
  */
-static unsigned int _BGM_xy_to_angle(int x, int y)
+static unsigned int
+_BGM_xy_to_angle(int x, int y)
 {
     double direction;
 
@@ -57,7 +57,6 @@ static unsigned int _BGM_xy_to_angle(int x, int y)
     return (unsigned int)direction;
 }
 
-
 /**
  * Given its magnitude an direction, this function calculates the scalar components (x,y) of a
  * vector.
@@ -67,14 +66,14 @@ static unsigned int _BGM_xy_to_angle(int x, int y)
  * @param[out] x            Calculated X component.
  * @param[out] y            Calculated Y component
  */
-static void _BGM_angle_to_xy(unsigned int magnitude, unsigned int direction, int *x, int *y)
+static void
+_BGM_angle_to_xy(unsigned int magnitude, unsigned int direction, int *x, int *y)
 {
     double rad = direction * (M_PI / 180);
 
     *x = round(cos(rad) * magnitude);
     *y = round(sin(rad) * magnitude);
 }
-
 
 /**
  * Function to be used with 'qsort', sorting connections by its magnitude in ascending order.
@@ -86,13 +85,14 @@ static void _BGM_angle_to_xy(unsigned int magnitude, unsigned int direction, int
  * @retval -1 (Connection1 < Connection2).
  * @retval  1 (Connection1 > Connection2).
  */
-static int _BGM_sort_connections_by_magnitude(const void *ptr1, const void *ptr2)
+static int
+_BGM_sort_connections_by_magnitude(const void *ptr1, const void *ptr2)
 {
     struct _BGM_connection *connection1;
     struct _BGM_connection *connection2;
 
-    connection1 = (struct _BGM_connection*) ptr1;
-    connection2 = (struct _BGM_connection*) ptr2;
+    connection1 = (struct _BGM_connection *)ptr1;
+    connection2 = (struct _BGM_connection *)ptr2;
 
     if (connection1->magnitude < connection2->magnitude) {
         return -1;
@@ -103,9 +103,10 @@ static int _BGM_sort_connections_by_magnitude(const void *ptr1, const void *ptr2
     }
 }
 
-static void _BGM_connection_from_minutiae(struct _BGM_minutia    *first_minutia,
-                                          struct _BGM_minutia    *second_minutia,
-                                          struct _BGM_connection *connection)
+static void
+_BGM_connection_from_minutiae(struct _BGM_minutia *first_minutia,
+                              struct _BGM_minutia *second_minutia,
+                              struct _BGM_connection *connection)
 {
     int dx;
     int dy;
@@ -128,9 +129,10 @@ static void _BGM_connection_from_minutiae(struct _BGM_minutia    *first_minutia,
  *
  * @retval  BGM_SUCCESS     Connections created successfully.
  */
-static void _BGM_connections_from_template(struct BGM_template    *tpl,
-                                           struct _BGM_connection *connections,
-                                           unsigned int           *num_connections)
+static void
+_BGM_connections_from_template(struct BGM_template *tpl,
+                               struct _BGM_connection *connections,
+                               unsigned int *num_connections)
 {
     *num_connections = 0;
 
@@ -146,11 +148,14 @@ static void _BGM_connections_from_template(struct BGM_template    *tpl,
     }
 
     // Sort connections by magnitude
-    qsort((void*)connections, *num_connections, sizeof(struct _BGM_connection),
+    qsort((void *)connections,
+          *num_connections,
+          sizeof(struct _BGM_connection),
           _BGM_sort_connections_by_magnitude);
 }
 
-static inline void _BGM_destroy_minutia(struct _BGM_minutia *minutia)
+static inline void
+_BGM_destroy_minutia(struct _BGM_minutia *minutia)
 {
     if (minutia->neighbors != NULL) {
         free(minutia->neighbors);
@@ -159,10 +164,11 @@ static inline void _BGM_destroy_minutia(struct _BGM_minutia *minutia)
     }
 }
 
-static void _BGM_create_minutia_neighbors(struct _BGM_minutia    *minutia,
-                                          struct _BGM_connection *connections,
-                                          unsigned int            num_connections,
-                                          unsigned int            max_neighbors)
+static void
+_BGM_create_minutia_neighbors(struct _BGM_minutia *minutia,
+                              struct _BGM_connection *connections,
+                              unsigned int num_connections,
+                              unsigned int max_neighbors)
 {
     unsigned int neighbor_count = 0;
     unsigned int temp_angle;
@@ -176,7 +182,7 @@ static void _BGM_create_minutia_neighbors(struct _BGM_minutia    *minutia,
             cur_neighbor->neighbor_id = connections[i].second_minutia->id;
             cur_neighbor->relative_angle = connections[i].second_minutia->angle;
             temp_angle = connections[i].direction;
-        // Check whether the minutia is the second minutia of current connection
+            // Check whether the minutia is the second minutia of current connection
         } else if (minutia->id == connections[i].second_minutia->id) {
             cur_neighbor->neighbor_id = connections[i].first_minutia->id;
             cur_neighbor->relative_angle = connections[i].first_minutia->angle;
@@ -194,11 +200,13 @@ static void _BGM_create_minutia_neighbors(struct _BGM_minutia    *minutia,
             temp_angle = 0;
         }
 
-        cur_neighbor->relative_angle = cur_neighbor->relative_angle > minutia->angle ?
-                                       cur_neighbor->relative_angle - minutia->angle :
-                                       minutia->angle - cur_neighbor->relative_angle;
+        cur_neighbor->relative_angle = cur_neighbor->relative_angle > minutia->angle
+            ? cur_neighbor->relative_angle - minutia->angle
+            : minutia->angle - cur_neighbor->relative_angle;
         // Calculate relative_x and relative_y from connection's magnitude and temp_angle
-        _BGM_angle_to_xy(connections[i].magnitude, temp_angle, &cur_neighbor->relative_x,
+        _BGM_angle_to_xy(connections[i].magnitude,
+                         temp_angle,
+                         &cur_neighbor->relative_x,
                          &cur_neighbor->relative_y);
 
         neighbor_count++;
@@ -207,7 +215,8 @@ static void _BGM_create_minutia_neighbors(struct _BGM_minutia    *minutia,
     minutia->num_neighbors = neighbor_count;
 }
 
-void _BGM_reset_template(struct BGM_template *tpl)
+void
+_BGM_reset_template(struct BGM_template *tpl)
 {
     tpl->magic_num = _BGM_TEMPLATE_INIT_MAGIC_NUMBER;
     tpl->minutiae = NULL;
@@ -224,10 +233,11 @@ void _BGM_reset_template(struct BGM_template *tpl)
  *
  * @return BGM_SUCCESS  Only success for now (could it be a void function?).
  */
-static BGM_status _BGM_create_template_neighbors(struct BGM_template    *tpl,
-                                                 struct _BGM_connection *connections,
-                                                 unsigned int            num_connections,
-                                                 unsigned int            num_neighbors)
+static BGM_status
+_BGM_create_template_neighbors(struct BGM_template *tpl,
+                               struct _BGM_connection *connections,
+                               unsigned int num_connections,
+                               unsigned int num_neighbors)
 {
     BGM_status status = BGM_SUCCESS;
 
@@ -254,7 +264,6 @@ static BGM_status _BGM_create_template_neighbors(struct BGM_template    *tpl,
     return status;
 }
 
-
 /**
  * Given a template, this function computes the neighbors for each minutiae.
  *
@@ -263,7 +272,8 @@ static BGM_status _BGM_create_template_neighbors(struct BGM_template    *tpl,
  * @retval BGM_SUCCESS  Minutiae's neghborhood updated successfully.
  * @retval BGM_E_GENERIC    An error ocurred.
  */
-BGM_status _BGM_intialize_template(struct BGM_template *tpl, unsigned int num_neighbors)
+BGM_status
+_BGM_intialize_template(struct BGM_template *tpl, unsigned int num_neighbors)
 {
     BGM_status status;
     struct _BGM_connection *connections;
@@ -276,7 +286,8 @@ BGM_status _BGM_intialize_template(struct BGM_template *tpl, unsigned int num_ne
             // Create connections between every pair of minutiae
             _BGM_connections_from_template(tpl, connections, &num_connections);
             // Identify the neighborhood of each minutia
-            status = _BGM_create_template_neighbors(tpl, connections, num_connections, num_neighbors);
+            status =
+                _BGM_create_template_neighbors(tpl, connections, num_connections, num_neighbors);
             if (status == BGM_SUCCESS) {
                 // TODO: Review it. This assignment is also done in '_BGM_reset_template'
                 tpl->magic_num = _BGM_TEMPLATE_INIT_MAGIC_NUMBER;
@@ -294,10 +305,8 @@ BGM_status _BGM_intialize_template(struct BGM_template *tpl, unsigned int num_ne
     return status;
 }
 
-
-
-
-void BGM_destroy_template (struct BGM_template *tpl)
+void
+BGM_destroy_template(struct BGM_template *tpl)
 {
     if (tpl != NULL) {
         if (_BGM_IS_TEMPLATE_INITIALIZED(*tpl)) {
@@ -311,4 +320,3 @@ void BGM_destroy_template (struct BGM_template *tpl)
         }
     }
 }
-

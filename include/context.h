@@ -9,7 +9,6 @@
  * Proprietary and confidential
  */
 
-
 #ifndef CONTEXT_H
 #define CONTEXT_H
 
@@ -43,12 +42,12 @@ struct _BGM_match_config {
 //
 
 // Default values
-#define DB_MAX_X_COORD_DFL              353
-#define DB_MAX_Y_COORD_DFL              390
-#define DB_MAX_T_ANGLE_DFL              359
-#define DB_PIXELS_PER_GROUP_DFL         1
-#define DB_DEGREES_PER_GROUP_DFL        2
-#define DB_ALLOC_STEP_DFL               32
+#define DB_MAX_X_COORD_DFL 353
+#define DB_MAX_Y_COORD_DFL 390
+#define DB_MAX_T_ANGLE_DFL 359
+#define DB_PIXELS_PER_GROUP_DFL 1
+#define DB_DEGREES_PER_GROUP_DFL 2
+#define DB_ALLOC_STEP_DFL 32
 
 // Structure used to hold/transmit configuration
 struct BGM_database_config {
@@ -61,35 +60,35 @@ struct BGM_database_config {
 
 // Macros for basic structure manipulation
 #define _BGM_DB_CONFIG_SET_MAX_COORD(cfg, x, y) \
-    do { \
-        cfg.max_x = x; \
-        cfg.max_y = y; \
+    do {                                        \
+        cfg.max_x = x;                          \
+        cfg.max_y = y;                          \
     } while (0)
 
 #define _BGM_DB_CONFIG_SET_DENSITY(cfg, ppg, dpg) \
-    do { \
-        cfg.pixels_per_group = ppg; \
-        cfg.degrees_per_group = dpg; \
+    do {                                          \
+        cfg.pixels_per_group = ppg;               \
+        cfg.degrees_per_group = dpg;              \
     } while (0)
 
-#define _BGM_DB_CONFIG_INIT(cfg) \
-    do { \
-        cfg.max_x = DB_MAX_X_COORD_DFL; \
-        cfg.max_y = DB_MAX_Y_COORD_DFL; \
-        cfg.pixels_per_group = DB_PIXELS_PER_GROUP_DFL; \
+#define _BGM_DB_CONFIG_INIT(cfg)                          \
+    do {                                                  \
+        cfg.max_x = DB_MAX_X_COORD_DFL;                   \
+        cfg.max_y = DB_MAX_Y_COORD_DFL;                   \
+        cfg.pixels_per_group = DB_PIXELS_PER_GROUP_DFL;   \
         cfg.degrees_per_group = DB_DEGREES_PER_GROUP_DFL; \
-        cfg.alloc_step = DB_ALLOC_STEP_DFL; \
+        cfg.alloc_step = DB_ALLOC_STEP_DFL;               \
     } while (0)
 
 //
 // Database
 //
 struct _BGM_database {
-    unsigned int   templates_counter;
-    unsigned int   next_template_id;
+    unsigned int templates_counter;
+    unsigned int next_template_id;
     unsigned int **data;
-    unsigned int  *alloc_counter; // in members, not bytes
-    unsigned int   num_groups;
+    unsigned int *alloc_counter; // in members, not bytes
+    unsigned int num_groups;
 };
 
 //
@@ -97,12 +96,11 @@ struct _BGM_database {
 //
 struct BGM_context {
     unsigned int magic_number;
-    struct _BGM_match_config    match_cfg;
+    struct _BGM_match_config match_cfg;
     struct BGM_database_config db_cfg;
-    struct _BGM_database        db;
+    struct _BGM_database db;
 };
 
-#define _BGM_IS_CONTEXT_INITIALIZED(ctx) \
-    ((ctx).magic_number == _BGM_CONTEXT_INIT_MAGIC_NUMBER)
+#define _BGM_IS_CONTEXT_INITIALIZED(ctx) ((ctx).magic_number == _BGM_CONTEXT_INIT_MAGIC_NUMBER)
 
 #endif // CONTEXT_H
