@@ -26,10 +26,13 @@ _BGM_add_positions(struct BGM_context *ctx, unsigned int group_index)
     BGM_status status;
 
     if (ctx->db.alloc_counter[group_index] == 0) {
-        ctx->db.data[group_index] = malloc(ctx->db_cfg.alloc_step * sizeof(unsigned int));
+        ctx->db.data[group_index] =
+            malloc(ctx->db_cfg.alloc_step * sizeof(unsigned int));
         if (ctx->db.data[group_index] != NULL) {
             ctx->db.alloc_counter[group_index] = ctx->db_cfg.alloc_step;
-            memset(ctx->db.data[group_index], -1, ctx->db_cfg.alloc_step * sizeof(unsigned int));
+            memset(ctx->db.data[group_index],
+                   -1,
+                   ctx->db_cfg.alloc_step * sizeof(unsigned int));
             status = BGM_SUCCESS;
         } else {
             status = BGM_E_NO_MEMORY;
@@ -41,11 +44,14 @@ _BGM_add_positions(struct BGM_context *ctx, unsigned int group_index)
         old_ptr = ctx->db.data[group_index];
         old_alloc_counter = ctx->db.alloc_counter[group_index];
 
-        ctx->db.data[group_index] = malloc(
-            (ctx->db.alloc_counter[group_index] + ctx->db_cfg.alloc_step) * sizeof(unsigned int));
+        ctx->db.data[group_index] =
+            malloc((ctx->db.alloc_counter[group_index] + ctx->db_cfg.alloc_step)
+                   * sizeof(unsigned int));
         if (ctx->db.data[group_index] != NULL) {
             ctx->db.alloc_counter[group_index] += ctx->db_cfg.alloc_step;
-            memcpy(ctx->db.data[group_index], old_ptr, old_alloc_counter * sizeof(unsigned int));
+            memcpy(ctx->db.data[group_index],
+                   old_ptr,
+                   old_alloc_counter * sizeof(unsigned int));
             free(old_ptr);
             memset(&ctx->db.data[group_index][old_alloc_counter],
                    -1,
@@ -82,7 +88,8 @@ _BGM_add_neighbor(struct BGM_context *ctx,
         if (status == BGM_SUCCESS) {
             unsigned int position;
             // Find the first free position
-            // TODO: It would be better to start at the group's top, going downwards to find the
+            // TODO: It would be better to start at the group's top, going
+            // downwards to find the
             // first
             //       free position.
             for (position = 0; position < ctx->db.alloc_counter[group_index]
@@ -124,7 +131,8 @@ _BGM_remove_neighbor(struct BGM_context *ctx,
         if (ctx->db.alloc_counter[group_index] != 0) {
             unsigned int position;
             for (position = 0; position < ctx->db.alloc_counter[group_index]
-                 && ctx->db.data[group_index][position] != (tpl_id << 6) + min_id;
+                 && ctx->db.data[group_index][position]
+                     != (tpl_id << 6) + min_id;
                  position++)
                 ;
 
@@ -143,7 +151,9 @@ _BGM_remove_neighbor(struct BGM_context *ctx,
 }
 
 static BGM_status
-_BGM_add_minutia(struct BGM_context *ctx, struct _BGM_minutia *min, unsigned int tpl_id)
+_BGM_add_minutia(struct BGM_context *ctx,
+                 struct _BGM_minutia *min,
+                 unsigned int tpl_id)
 {
     BGM_status status = BGM_SUCCESS;
 
@@ -152,7 +162,10 @@ _BGM_add_minutia(struct BGM_context *ctx, struct _BGM_minutia *min, unsigned int
         if (status != BGM_SUCCESS) {
             for (unsigned int j = 0; j < i; j++) {
                 BGM_status debug_status;
-                debug_status = _BGM_remove_neighbor(ctx, &min->neighbors[j], tpl_id, min->id);
+                debug_status = _BGM_remove_neighbor(ctx,
+                                                    &min->neighbors[j],
+                                                    tpl_id,
+                                                    min->id);
                 PRINT_IF_ERROR(debug_status);
             }
             break;
@@ -164,7 +177,9 @@ _BGM_add_minutia(struct BGM_context *ctx, struct _BGM_minutia *min, unsigned int
 }
 
 static BGM_status
-_BGM_remove_minutia(struct BGM_context *ctx, struct _BGM_minutia *min, unsigned int tpl_id)
+_BGM_remove_minutia(struct BGM_context *ctx,
+                    struct _BGM_minutia *min,
+                    unsigned int tpl_id)
 {
     BGM_status status = BGM_SUCCESS;
     int error_count = 0;
@@ -180,17 +195,21 @@ _BGM_remove_minutia(struct BGM_context *ctx, struct _BGM_minutia *min, unsigned 
 }
 
 static BGM_status
-_BGM_add_template(struct BGM_context *ctx, struct BGM_template *tpl, unsigned int *tpl_id)
+_BGM_add_template(struct BGM_context *ctx,
+                  struct BGM_template *tpl,
+                  unsigned int *tpl_id)
 {
     BGM_status status = BGM_E_TOO_FEW_MINUTIAE;
 
     for (unsigned int i = 0; i < tpl->num_minutiae; i++) {
-        status = _BGM_add_minutia(ctx, &tpl->minutiae[i], ctx->db.next_template_id);
+        status =
+            _BGM_add_minutia(ctx, &tpl->minutiae[i], ctx->db.next_template_id);
         if (status != BGM_SUCCESS) {
             for (unsigned int j = 0; j < i; j++) {
                 BGM_status debug_status;
-                debug_status =
-                    _BGM_remove_minutia(ctx, &tpl->minutiae[j], ctx->db.next_template_id);
+                debug_status = _BGM_remove_minutia(ctx,
+                                                   &tpl->minutiae[j],
+                                                   ctx->db.next_template_id);
                 PRINT_IF_ERROR(debug_status);
             }
             break;
@@ -207,8 +226,14 @@ _BGM_add_template(struct BGM_context *ctx, struct BGM_template *tpl, unsigned in
     return status;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////  P U B L I C  /////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 BGM_status
-BGM_add_template(struct BGM_context *ctx, struct BGM_template *tpl, unsigned int *tpl_id)
+BGM_add_template(struct BGM_context *ctx,
+                 struct BGM_template *tpl,
+                 unsigned int *tpl_id)
 {
     BGM_status status;
 
@@ -238,7 +263,9 @@ BGM_add_template(struct BGM_context *ctx, struct BGM_template *tpl, unsigned int
 }
 
 BGM_status
-_BGM_remove_template(struct BGM_context *ctx, struct BGM_template *tpl, unsigned int tpl_id)
+_BGM_remove_template(struct BGM_context *ctx,
+                     struct BGM_template *tpl,
+                     unsigned int tpl_id)
 {
     BGM_status status;
     unsigned int removed_minutiae = 0;
@@ -270,7 +297,9 @@ _BGM_remove_template(struct BGM_context *ctx, struct BGM_template *tpl, unsigned
 }
 
 BGM_status
-BGM_remove_template(struct BGM_context *ctx, struct BGM_template *tpl, unsigned int tpl_id)
+BGM_remove_template(struct BGM_context *ctx,
+                    struct BGM_template *tpl,
+                    unsigned int tpl_id)
 {
     BGM_status status;
 

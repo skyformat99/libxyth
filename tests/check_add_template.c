@@ -155,7 +155,9 @@ add_template_tcase(void)
 
     tcase = tcase_create("AddTemplate");
 
-    tcase_add_unchecked_fixture(tcase, add_template_setup, add_template_teardown);
+    tcase_add_unchecked_fixture(tcase,
+                                add_template_setup,
+                                add_template_teardown);
 
     tcase_add_test(tcase, simple_success);
     tcase_add_test(tcase, null_context);

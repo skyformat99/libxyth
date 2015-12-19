@@ -90,7 +90,9 @@ _BGM_parse_xyt_line(char *line, unsigned int id, struct _BGM_minutia *minutia)
 }
 
 static BGM_status
-_BGM_parse_xyt_multiline(char *xyt_buffer, unsigned int max_num_minutiae, struct BGM_template *tpl)
+_BGM_parse_xyt_multiline(char *xyt_buffer,
+                         unsigned int max_num_minutiae,
+                         struct BGM_template *tpl)
 {
     char *line;
     char *line_ctx;
@@ -105,20 +107,23 @@ _BGM_parse_xyt_multiline(char *xyt_buffer, unsigned int max_num_minutiae, struct
         do {
             if (line != NULL) {
                 PDEBUG("line: %s\n", line);
-                status =
-                    _BGM_parse_xyt_line(line, minutia_counter, &tpl->minutiae[minutia_counter]);
+                status = _BGM_parse_xyt_line(line,
+                                             minutia_counter,
+                                             &tpl->minutiae[minutia_counter]);
                 if (status == BGM_SUCCESS) {
                     minutia_counter++;
                 }
                 line = strtok_r(NULL, "\n", &line_ctx);
             }
-        } while (line != NULL && status == BGM_SUCCESS && minutia_counter < max_num_minutiae);
-        // If, at least, one minutia was parsed successfully, and the last call to
-        // '_BGM_minutia_from_xyt' returned success, everything is fine.
+        } while (line != NULL && status == BGM_SUCCESS
+                 && minutia_counter < max_num_minutiae);
+        // If, at least, one minutia was parsed successfully, and the last call
+        // to '_BGM_minutia_from_xyt' returned success, everything is fine.
         if (minutia_counter > 0 && status == BGM_SUCCESS) {
             tpl->num_minutiae = minutia_counter;
         } else {
-            // Otherwise, free 'minutiae' and set 'status' to apropriate error code
+            // Otherwise, free 'minutiae' and set 'status' to apropriate error
+            // code
             free(tpl->minutiae);
             tpl->minutiae = NULL;
             tpl->num_minutiae = 0;
@@ -131,9 +136,10 @@ _BGM_parse_xyt_multiline(char *xyt_buffer, unsigned int max_num_minutiae, struct
     return status;
 }
 
-/*
- * See documentation in 'include/template.h'
- */
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////  P U B L I C  /////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 BGM_status
 BGM_template_from_xyt(char *xyt_buffer,
                       struct BGM_template *tpl,
@@ -158,9 +164,11 @@ BGM_template_from_xyt(char *xyt_buffer,
         buffer_size = strlen(xyt_buffer) + 1;
         buffer_copy = malloc(buffer_size);
         if (buffer_copy != NULL) {
-            // Copy 'xyt_buffer' because '_BGM_parse_xyt_multiline' changes the input buffer
+            // Copy 'xyt_buffer' because '_BGM_parse_xyt_multiline' changes the
+            // input buffer
             memcpy(buffer_copy, xyt_buffer, buffer_size);
-            status = _BGM_parse_xyt_multiline(buffer_copy, max_num_minutiae, tpl);
+            status =
+                _BGM_parse_xyt_multiline(buffer_copy, max_num_minutiae, tpl);
             if (status == BGM_SUCCESS) {
                 status = _BGM_intialize_template(tpl, num_neighbors);
             }

@@ -107,7 +107,9 @@ remove_template_tcase(void)
 
     tcase = tcase_create("RemoveTemplate");
 
-    tcase_add_unchecked_fixture(tcase, remove_template_setup, remove_template_teardown);
+    tcase_add_unchecked_fixture(tcase,
+                                remove_template_setup,
+                                remove_template_teardown);
 
     tcase_add_test(tcase, simple_success);
     tcase_add_test(tcase, null_context);

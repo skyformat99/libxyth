@@ -21,15 +21,20 @@
 //
 
 struct _BGM_match_config {
-    unsigned int minutia_threshold; // No. of matching neighbors required to consider two minutiae
+    unsigned int minutia_threshold; // No. of matching neighbors required to
+                                    // consider two minutiae
                                     // compatible
 
-    // FIXME: The actual template threshold is 1, regardless of the value configured here.
-    unsigned int template_threshold; // No. of matching minutiae required to consider two templates
+    // FIXME: The actual template threshold is 1, regardless of the value
+    // configured here.
+    unsigned int template_threshold; // No. of matching minutiae required to
+                                     // consider two templates
                                      // compatible
 
-    // FIXME: The actual failure threshold is 0, regardless of the value configured here.
-    unsigned int failure_threshold; // No. of non-compatible minutiae required to abort a match
+    // FIXME: The actual failure threshold is 0, regardless of the value
+    // configured here.
+    unsigned int failure_threshold; // No. of non-compatible minutiae required
+                                    // to abort a match
                                     // (0 - Do not abort)
 
     unsigned int x_tolerance; // Coordinates tolerance...
@@ -101,6 +106,7 @@ struct BGM_context {
     struct _BGM_database db;
 };
 
-#define _BGM_IS_CONTEXT_INITIALIZED(ctx) ((ctx).magic_number == _BGM_CONTEXT_INIT_MAGIC_NUMBER)
+#define _BGM_IS_CONTEXT_INITIALIZED(ctx) \
+    ((ctx).magic_number == _BGM_CONTEXT_INIT_MAGIC_NUMBER)
 
 #endif // CONTEXT_H

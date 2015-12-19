@@ -41,11 +41,13 @@ _BGM_set_dfl_database_config(struct BGM_database_config *db_cfg)
 }
 
 static BGM_status
-_BGM_set_custom_database_config(struct BGM_database_config *in, struct BGM_database_config *out)
+_BGM_set_custom_database_config(struct BGM_database_config *in,
+                                struct BGM_database_config *out)
 {
     BGM_status status;
 
-    if (in->degrees_per_group < 360 && in->max_x > 0 && in->max_y > 0 && in->pixels_per_group > 0
+    if (in->degrees_per_group < 360 && in->max_x > 0 && in->max_y > 0
+        && in->pixels_per_group > 0
         && in->alloc_step > 0) {
         out->degrees_per_group = in->degrees_per_group;
         out->max_x = in->max_x;
@@ -71,7 +73,8 @@ _BGM_create_database(struct BGM_context *ctx)
     ctx->db.next_template_id = 0;
     ctx->db.templates_counter = 0;
 
-    if (ctx->db_cfg.degrees_per_group != 0 && ctx->db_cfg.pixels_per_group != 0) {
+    if (ctx->db_cfg.degrees_per_group != 0
+        && ctx->db_cfg.pixels_per_group != 0) {
         _BGM_calc_num_groups(ctx, &x_groups, &y_groups, &t_groups);
         num_groups = x_groups * y_groups * t_groups;
         // Each group will hold a pointer
@@ -118,6 +121,10 @@ _BGM_destroy_database(struct BGM_context *ctx)
         PRINT_IF_NULL(ctx->db.alloc_counter);
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////  P U B L I C  /////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 BGM_status
 BGM_set_match_tolerances(struct BGM_context *ctx,

@@ -27,8 +27,8 @@ struct _BGM_image_line_boundaries {
 };
 
 /* Copied from NBIS package's bz_sort.c */
-int
-sort_quality_decreasing(const void *a, const void *b)
+static int
+_BGM_sort_quality_decreasing(const void *a, const void *b)
 {
     struct minutiae_struct *af;
     struct minutiae_struct *bf;
@@ -44,8 +44,8 @@ sort_quality_decreasing(const void *a, const void *b)
 }
 
 /* Copied from NBIS package's bz_sort.c */
-int
-sort_x_y(const void *a, const void *b)
+static int
+_BGM_sort_x_y(const void *a, const void *b)
 {
     struct minutiae_struct *af;
     struct minutiae_struct *bf;
@@ -118,17 +118,23 @@ _BGM_mindtct_get_minutiae(unsigned char *buffer,
         free(bdata);
         // Convert minutiae to NIST form (system origin and angle differences)
         for (int i = 0; i < minutiae->num; i++) {
-            lfs2nist_minutia_XYT(&ox, &oy, &ot, minutiae->list[i], width, height);
+            lfs2nist_minutia_XYT(&ox,
+                                 &oy,
+                                 &ot,
+                                 minutiae->list[i],
+                                 width,
+                                 height);
             minutiae_nist_form[i].col[0] = ox;
             minutiae_nist_form[i].col[1] = oy;
             minutiae_nist_form[i].col[2] = ot;
-            minutiae_nist_form[i].col[3] = (int)(minutiae->list[i]->reliability * 100);
+            minutiae_nist_form[i].col[3] =
+                (int)(minutiae->list[i]->reliability * 100);
         }
         // Sort by quality.
         qsort((void *)&minutiae_nist_form,
               (size_t)minutiae->num,
               sizeof(struct minutiae_struct),
-              sort_quality_decreasing);
+              _BGM_sort_quality_decreasing);
 
         // If found too many minutiae, then discard the ones with less quality.
         if ((unsigned int)minutiae->num > max_num_minutiae) {
@@ -138,7 +144,7 @@ _BGM_mindtct_get_minutiae(unsigned char *buffer,
         qsort((void *)&minutiae_nist_form,
               (size_t)minutiae->num,
               sizeof(struct minutiae_struct),
-              sort_x_y);
+              _BGM_sort_x_y);
         // Copy data to a bergamota struct
         min_index = 0;
         for (int i = 0; i < minutiae->num; i++) {
@@ -197,6 +203,10 @@ _BGM_template_from_raw_image(unsigned char *buffer,
     return status;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////  P U B L I C  /////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 BGM_status
 BGM_template_from_raw_image(unsigned char *buffer,
                             unsigned int width,
@@ -210,7 +220,8 @@ BGM_template_from_raw_image(unsigned char *buffer,
     int status;
 
     // Param check
-    if (buffer == NULL || width == 0 || height == 0 || pixel_depth == 0 || resolution_in_ppi == 0
+    if (buffer == NULL || width == 0 || height == 0 || pixel_depth == 0
+        || resolution_in_ppi == 0
         || tpl == NULL
         || max_num_minutiae == 0
         || num_neighbors == 0) {

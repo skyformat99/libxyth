@@ -53,16 +53,17 @@
 
 #ifdef _BGM_DEBUG
 #warning "DEBUG mode!"
-#define PDEBUG(fmt, args...)                                                         \
-    printf(FILENAME_COLOR __FILE__ ":" FUNC_COLOR "%s:" LINE_COLOR "%d: " RESET fmt, \
-           __FUNCTION__,                                                             \
-           __LINE__,                                                                 \
+#define PDEBUG(fmt, args...)                                       \
+    printf(FILENAME_COLOR __FILE__ ":" FUNC_COLOR "%s:" LINE_COLOR \
+                                   "%d: " RESET fmt,               \
+           __FUNCTION__,                                           \
+           __LINE__,                                               \
            ##args)
-#define PERROR(fmt, args...)                                                                 \
-    printf(F_RED B_BLACK "[ ERROR ]" FILENAME_COLOR __FILE__ ":" FUNC_COLOR "%s:" LINE_COLOR \
-                         "%d: " RESET fmt,                                                   \
-           __FUNCTION__,                                                                     \
-           __LINE__,                                                                         \
+#define PERROR(fmt, args...)                                                \
+    printf(F_RED B_BLACK "[ ERROR ]" FILENAME_COLOR __FILE__ ":" FUNC_COLOR \
+                         "%s:" LINE_COLOR "%d: " RESET fmt,                 \
+           __FUNCTION__,                                                    \
+           __LINE__,                                                        \
            ##args)
 #else
 #define PDEBUG(fmt, args...)

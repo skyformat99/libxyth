@@ -20,8 +20,19 @@
 #include "config.h"
 #include "common.h"
 
+struct _BGM_global_score {
+    unsigned int num_templates;
+    unsigned int *minutiae_scores;
+    unsigned int winner_id;
+};
+
 static void
-_BGM_define_coord_range(int min, int max, int val, unsigned int tolerance, int *start, int *end)
+_BGM_define_coord_range(int min,
+                        int max,
+                        int val,
+                        unsigned int tolerance,
+                        int *start,
+                        int *end)
 {
     *start = val - tolerance;
     if (*start < min) {
@@ -56,18 +67,13 @@ _BGM_define_angle_range(unsigned int val,
     }
 }
 
-struct _BGM_global_score {
-    unsigned int num_templates;
-    unsigned int *minutiae_scores;
-    unsigned int winner_id;
-};
-
 static void
 _BGM_reset_score(struct _BGM_global_score *score)
 {
     memset(score->minutiae_scores,
            0,
-           score->num_templates * MAX_MINUTIAE_PER_TEMPLATE_DFL * sizeof(unsigned int));
+           score->num_templates * MAX_MINUTIAE_PER_TEMPLATE_DFL
+               * sizeof(unsigned int));
 }
 
 static BGM_status
@@ -77,7 +83,8 @@ _BGM_create_score(struct BGM_context *ctx, struct _BGM_global_score *score)
     unsigned int alloc_size;
 
     // TODO: Stop using MAX_MINUTIAE_PER_TEMPLATE_DFL directly.
-    alloc_size = ctx->db.next_template_id * MAX_MINUTIAE_PER_TEMPLATE_DFL * sizeof(unsigned int);
+    alloc_size = ctx->db.next_template_id * MAX_MINUTIAE_PER_TEMPLATE_DFL
+        * sizeof(unsigned int);
 
     score->minutiae_scores = malloc(alloc_size);
     if (score->minutiae_scores != NULL) {
@@ -122,10 +129,13 @@ _BGM_calc_compatibility_window(struct BGM_context *ctx,
                             start_y,
                             end_y);
 
-    _BGM_define_angle_range(nei->relative_angle, ctx->match_cfg.t_tolerance, start_t, end_t);
+    _BGM_define_angle_range(nei->relative_angle,
+                            ctx->match_cfg.t_tolerance,
+                            start_t,
+                            end_t);
 }
 
-void
+static void
 _BGM_update_score_from_group(struct BGM_context *ctx,
                              struct _BGM_global_score *sc,
                              unsigned int group_index)
@@ -146,7 +156,7 @@ _BGM_update_score_from_group(struct BGM_context *ctx,
     }
 }
 
-void
+static void
 _BGM_update_score_with_matching_neighbors(struct BGM_context *ctx,
                                           struct _BGM_neighbor *nei,
                                           struct _BGM_global_score *score)
@@ -159,13 +169,22 @@ _BGM_update_score_with_matching_neighbors(struct BGM_context *ctx,
     unsigned int end_t;
     BGM_status status;
 
-    _BGM_calc_compatibility_window(ctx, nei, &start_x, &end_x, &start_y, &end_y, &start_t, &end_t);
+    _BGM_calc_compatibility_window(ctx,
+                                   nei,
+                                   &start_x,
+                                   &end_x,
+                                   &start_y,
+                                   &end_y,
+                                   &start_t,
+                                   &end_t);
 
     for (int x = start_x; x <= end_x; x += ctx->db_cfg.pixels_per_group) {
         for (int y = start_y; y <= end_y; y += ctx->db_cfg.pixels_per_group) {
-            for (unsigned int t = start_t; t <= end_t; t += ctx->db_cfg.degrees_per_group) {
+            for (unsigned int t = start_t; t <= end_t;
+                 t += ctx->db_cfg.degrees_per_group) {
                 unsigned int group_index;
-                status = _BGM_calc_group_index(ctx, x, y, t % 360, &group_index);
+                status =
+                    _BGM_calc_group_index(ctx, x, y, t % 360, &group_index);
                 if (status == BGM_SUCCESS) {
                     _BGM_update_score_from_group(ctx, score, group_index);
                 }
@@ -174,8 +193,10 @@ _BGM_update_score_with_matching_neighbors(struct BGM_context *ctx,
     }
 }
 
-void
-_BGM_get_matching_id(struct BGM_context *ctx, struct _BGM_global_score *score, unsigned int *tpl_id)
+static void
+_BGM_get_matching_id(struct BGM_context *ctx,
+                     struct _BGM_global_score *score,
+                     unsigned int *tpl_id)
 {
     unsigned int *template_scores;
     unsigned int alloc_size;
@@ -186,9 +207,12 @@ _BGM_get_matching_id(struct BGM_context *ctx, struct _BGM_global_score *score, u
     template_scores = malloc(alloc_size);
     if (template_scores != NULL) {
         memset(template_scores, 0, alloc_size);
-        for (unsigned int i = 0; i < score->num_templates * MAX_MINUTIAE_PER_TEMPLATE_DFL; i++) {
+        for (unsigned int i = 0;
+             i < score->num_templates * MAX_MINUTIAE_PER_TEMPLATE_DFL;
+             i++) {
             if (score->minutiae_scores[i] != 0) {
-                if (score->minutiae_scores[i] >= ctx->match_cfg.minutia_threshold) {
+                if (score->minutiae_scores[i]
+                    >= ctx->match_cfg.minutia_threshold) {
                     template_scores[i / MAX_MINUTIAE_PER_TEMPLATE_DFL]++;
                 }
             }
@@ -212,8 +236,11 @@ _BGM_get_matching_id(struct BGM_context *ctx, struct _BGM_global_score *score, u
     }
 }
 
-BGM_status
-_BGM_identify(struct BGM_context *ctx, struct BGM_template *tpl, bool *found, unsigned int *tpl_id)
+static BGM_status
+_BGM_identify(struct BGM_context *ctx,
+              struct BGM_template *tpl,
+              bool *found,
+              unsigned int *tpl_id)
 {
     BGM_status status;
     struct _BGM_global_score score;
@@ -224,13 +251,15 @@ _BGM_identify(struct BGM_context *ctx, struct BGM_template *tpl, bool *found, un
     status = _BGM_create_score(ctx, &score);
 
     if (status == BGM_SUCCESS) {
-        for (unsigned int min_index = 0; min_index < tpl->num_minutiae; min_index++) {
-            for (unsigned int nei_index = 0; nei_index < tpl->minutiae[min_index].num_neighbors;
+        for (unsigned int min_index = 0; min_index < tpl->num_minutiae;
+             min_index++) {
+            for (unsigned int nei_index = 0;
+                 nei_index < tpl->minutiae[min_index].num_neighbors;
                  nei_index++) {
-                _BGM_update_score_with_matching_neighbors(ctx,
-                                                          &tpl->minutiae[min_index]
-                                                               .neighbors[nei_index],
-                                                          &score);
+                _BGM_update_score_with_matching_neighbors(
+                    ctx,
+                    &tpl->minutiae[min_index].neighbors[nei_index],
+                    &score);
             }
             _BGM_get_matching_id(ctx, &score, tpl_id);
             _BGM_reset_score(&score);
@@ -249,8 +278,15 @@ MATCH_FOUND:
     return status;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////  P U B L I C  /////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 BGM_status
-BGM_identify(struct BGM_context *ctx, struct BGM_template *tpl, bool *found, unsigned int *tpl_id)
+BGM_identify(struct BGM_context *ctx,
+             struct BGM_template *tpl,
+             bool *found,
+             unsigned int *tpl_id)
 {
     BGM_status status;
 

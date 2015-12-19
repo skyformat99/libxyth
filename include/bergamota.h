@@ -49,22 +49,29 @@ typedef enum {
 
 #define BGM_DB_CONFIG_INIT(cfg) _BGM_DB_CONFIG_INIT(cfg)
 
-#define BGM_DB_CONFIG_SET_MAX_COORD(cfg, x, y) _BGM_DB_CONFIG_SET_MAX_COORD(cfg, x, y)
+#define BGM_DB_CONFIG_SET_MAX_COORD(cfg, x, y) \
+    _BGM_DB_CONFIG_SET_MAX_COORD(cfg, x, y)
 
-#define BGM_DB_CONFIG_SET_DENSITY(cfg, ppg, dpg) _BGM_DB_CONFIG_SET_DENSITY(cfg, ppg, dpg)
+#define BGM_DB_CONFIG_SET_DENSITY(cfg, ppg, dpg) \
+    _BGM_DB_CONFIG_SET_DENSITY(cfg, ppg, dpg)
 
-BGM_status BGM_create_context(struct BGM_context *ctx, struct BGM_database_config *db_cfg);
+BGM_status
+BGM_create_context(struct BGM_context *ctx, struct BGM_database_config *db_cfg);
 
 void BGM_destroy_context(struct BGM_context *ctx);
 
-BGM_status
-BGM_add_template(struct BGM_context *ctx, struct BGM_template *tpl, unsigned int *tpl_id);
+BGM_status BGM_add_template(struct BGM_context *ctx,
+                            struct BGM_template *tpl,
+                            unsigned int *tpl_id);
 
-BGM_status
-BGM_remove_template(struct BGM_context *ctx, struct BGM_template *tpl, unsigned int tpl_id);
+BGM_status BGM_remove_template(struct BGM_context *ctx,
+                               struct BGM_template *tpl,
+                               unsigned int tpl_id);
 
-BGM_status
-BGM_identify(struct BGM_context *ctx, struct BGM_template *tpl, bool *found, unsigned int *tpl_id);
+BGM_status BGM_identify(struct BGM_context *ctx,
+                        struct BGM_template *tpl,
+                        bool *found,
+                        unsigned int *tpl_id);
 
 BGM_status BGM_template_from_xyt(char *xyt_buffer,
                                  struct BGM_template *tpl,
@@ -92,7 +99,8 @@ BGM_status BGM_set_match_thresholds(struct BGM_context *ctx,
                                     unsigned int template_threshold,
                                     unsigned int failure_threshold);
 
-BGM_status BGM_get_template_counter(struct BGM_context *ctx, unsigned int *tpl_counter);
+BGM_status
+BGM_get_template_counter(struct BGM_context *ctx, unsigned int *tpl_counter);
 
 #ifdef __cplusplus
 }
