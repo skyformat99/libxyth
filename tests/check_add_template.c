@@ -48,7 +48,7 @@ add_template_setup()
     BGM_DB_CONFIG_SET_MAX_COORD(cfg, 4, 4);
     BGM_DB_CONFIG_SET_DENSITY(cfg, 1, 90);
 
-    status = BGM_template_from_xyt(XYT_2MIN_5X5, &tpl, 4, 1);
+    status = BGM_template_from_xyt(XYT_2MIN_5X5, &tpl, 1);
     ck_assert_int_eq(status, BGM_SUCCESS);
 
     status = BGM_create_context(&ctx, &cfg);

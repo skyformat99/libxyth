@@ -17,6 +17,7 @@
 #include <mindtct/bozorth.h>
 
 #include "template-common.h"
+#include "config.h"
 
 #define MINUTIA_MIN_RELIABILITY 45
 
@@ -72,8 +73,7 @@ _BGM_mindtct_get_minutiae(unsigned char *buffer,
                           unsigned int height,
                           unsigned int pixel_depth,
                           unsigned int resolution_in_ppi,
-                          struct BGM_template *tpl,
-                          unsigned int max_num_minutiae)
+                          struct BGM_template *tpl)
 {
     double pixels_per_mm = (resolution_in_ppi / 25.4);
     int bw, bh, bd;
@@ -137,8 +137,8 @@ _BGM_mindtct_get_minutiae(unsigned char *buffer,
               _BGM_sort_quality_decreasing);
 
         // If found too many minutiae, then discard the ones with less quality.
-        if ((unsigned int)minutiae->num > max_num_minutiae) {
-            minutiae->num = max_num_minutiae;
+        if ((unsigned int)minutiae->num > MAX_MINUTIAE_PER_TEMPLATE) {
+            minutiae->num = MAX_MINUTIAE_PER_TEMPLATE;
         }
         // Sort by X, then by Y
         qsort((void *)&minutiae_nist_form,
@@ -178,20 +178,18 @@ _BGM_template_from_raw_image(unsigned char *buffer,
                              unsigned int pixel_depth,
                              unsigned int resolution_in_ppi,
                              struct BGM_template *tpl,
-                             unsigned int max_num_minutiae,
                              unsigned int num_neighbors)
 {
     BGM_status status;
 
-    tpl->minutiae = malloc(max_num_minutiae * sizeof(*tpl->minutiae));
+    tpl->minutiae = malloc(MAX_MINUTIAE_PER_TEMPLATE * sizeof(*tpl->minutiae));
     if (tpl->minutiae != NULL) {
         status = _BGM_mindtct_get_minutiae(buffer,
                                            width,
                                            height,
                                            pixel_depth,
                                            resolution_in_ppi,
-                                           tpl,
-                                           max_num_minutiae);
+                                           tpl);
         if (status == BGM_SUCCESS) {
             status = _BGM_intialize_template(tpl, num_neighbors);
         }
@@ -214,7 +212,6 @@ BGM_template_from_raw_image(unsigned char *buffer,
                             unsigned int pixel_depth,
                             unsigned int resolution_in_ppi,
                             struct BGM_template *tpl,
-                            unsigned int max_num_minutiae,
                             unsigned int num_neighbors)
 {
     int status;
@@ -223,7 +220,6 @@ BGM_template_from_raw_image(unsigned char *buffer,
     if (buffer == NULL || width == 0 || height == 0 || pixel_depth == 0
         || resolution_in_ppi == 0
         || tpl == NULL
-        || max_num_minutiae == 0
         || num_neighbors == 0) {
         PRINT_IF_NULL(buffer);
         PRINT_IF_TRUE(width == 0);
@@ -231,7 +227,6 @@ BGM_template_from_raw_image(unsigned char *buffer,
         PRINT_IF_TRUE(pixel_depth == 0);
         PRINT_IF_TRUE(resolution_in_ppi == 0);
         PRINT_IF_NULL(tpl);
-        PRINT_IF_TRUE(max_num_minutiae == 0);
         PRINT_IF_TRUE(num_neighbors == 0);
 
         status = BGM_E_INVALID_PARAMETER;
@@ -247,7 +242,6 @@ BGM_template_from_raw_image(unsigned char *buffer,
                                               pixel_depth,
                                               resolution_in_ppi,
                                               tpl,
-                                              max_num_minutiae,
                                               num_neighbors);
         if (status != BGM_SUCCESS) {
             BGM_destroy_template(tpl);

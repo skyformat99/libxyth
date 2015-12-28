@@ -18,6 +18,7 @@
 #include <debug.h>
 
 #include "template-common.h"
+#include "config.h"
 
 static BGM_status
 _BGM_parse_xyt_value(char *str, unsigned int *uint_value)
@@ -90,16 +91,14 @@ _BGM_parse_xyt_line(char *line, unsigned int id, struct _BGM_minutia *minutia)
 }
 
 static BGM_status
-_BGM_parse_xyt_multiline(char *xyt_buffer,
-                         unsigned int max_num_minutiae,
-                         struct BGM_template *tpl)
+_BGM_parse_xyt_multiline(char *xyt_buffer, struct BGM_template *tpl)
 {
     char *line;
     char *line_ctx;
     unsigned int minutia_counter = 0;
     BGM_status status;
 
-    tpl->minutiae = malloc(max_num_minutiae * sizeof(*tpl->minutiae));
+    tpl->minutiae = malloc(MAX_MINUTIAE_PER_TEMPLATE * sizeof(*tpl->minutiae));
     if (tpl->minutiae != NULL) {
         status = BGM_SUCCESS;
         // Iterate over the lines
@@ -116,7 +115,7 @@ _BGM_parse_xyt_multiline(char *xyt_buffer,
                 line = strtok_r(NULL, "\n", &line_ctx);
             }
         } while (line != NULL && status == BGM_SUCCESS
-                 && minutia_counter < max_num_minutiae);
+                 && minutia_counter < MAX_MINUTIAE_PER_TEMPLATE);
         // If, at least, one minutia was parsed successfully, and the last call
         // to '_BGM_minutia_from_xyt' returned success, everything is fine.
         if (minutia_counter > 0 && status == BGM_SUCCESS) {
@@ -143,7 +142,6 @@ _BGM_parse_xyt_multiline(char *xyt_buffer,
 BGM_status
 BGM_template_from_xyt(char *xyt_buffer,
                       struct BGM_template *tpl,
-                      unsigned int max_num_minutiae,
                       unsigned int num_neighbors)
 {
     char *buffer_copy;
@@ -168,7 +166,7 @@ BGM_template_from_xyt(char *xyt_buffer,
             // input buffer
             memcpy(buffer_copy, xyt_buffer, buffer_size);
             status =
-                _BGM_parse_xyt_multiline(buffer_copy, max_num_minutiae, tpl);
+                _BGM_parse_xyt_multiline(buffer_copy, tpl);
             if (status == BGM_SUCCESS) {
                 status = _BGM_intialize_template(tpl, num_neighbors);
             }

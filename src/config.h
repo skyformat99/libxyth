@@ -35,14 +35,14 @@
  group.
 
  *Template config*
- MAX_MINUTIAE_PER_TEMPLATE_DFL \__.-Implemented in template, only DFL defines
+ MAX_MINUTIAE_PER_TEMPLATE      \__.-Implemented in template, only DFL defines
  are missing
  NEIGHBORS_PER_MINUTIAE_DFL    /
 
 */
 
 // Template config.
-#define MAX_MINUTIAE_PER_TEMPLATE_DFL 64
+#define MAX_MINUTIAE_PER_TEMPLATE 64
 #define NEIGHBORS_PER_MINUTIAE_DFL 20
 
 // Match config.

@@ -39,7 +39,7 @@ START_TEST(simple_success)
     struct BGM_template tpl = {0};
     BGM_status status;
 
-    status = BGM_template_from_xyt(XYT_OK, &tpl, 64, 5);
+    status = BGM_template_from_xyt(XYT_OK, &tpl, 5);
     ck_assert_int_eq(status, BGM_SUCCESS);
     ck_assert_int_eq(tpl.magic_num, _BGM_TEMPLATE_INIT_MAGIC_NUMBER);
     ck_assert_int_eq(tpl.num_minutiae, 21);

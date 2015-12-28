@@ -25,8 +25,6 @@ struct _BGM_match_config {
                                     // consider two minutiae
                                     // compatible
 
-    // FIXME: The actual template threshold is 1, regardless of the value
-    // configured here.
     unsigned int template_threshold; // No. of matching minutiae required to
                                      // consider two templates
                                      // compatible

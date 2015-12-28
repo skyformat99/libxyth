@@ -37,10 +37,10 @@ identify_setup()
 {
     BGM_status status;
 
-    status = BGM_template_from_xyt(XYT_OK1, &tpl1, 64, 20);
+    status = BGM_template_from_xyt(XYT_OK1, &tpl1, 20);
     ck_assert_int_eq(status, BGM_SUCCESS);
 
-    status = BGM_template_from_xyt(XYT_OK2, &tpl2, 64, 20);
+    status = BGM_template_from_xyt(XYT_OK2, &tpl2, 20);
     ck_assert_int_eq(status, BGM_SUCCESS);
 
     status = BGM_create_context(&ctx2, NULL);
@@ -68,48 +68,48 @@ identify_teardown()
 START_TEST(simple_success)
 {
     BGM_status status;
-    unsigned int id = BGM_RESERVED_TEMPLATE_ID;
-    bool found;
+    unsigned int matches[1];
+    unsigned int matches_length = 1;
 
-    status = BGM_identify(&ctx2, &tpl1, &found, &id);
+    status = BGM_identify(&ctx2, &tpl1, &matches_length, matches);
     ck_assert_int_eq(status, BGM_SUCCESS);
-    ck_assert_int_eq(id, tpl_id1);
-    ck_assert(found);
+    ck_assert_int_eq(matches_length, 1);
+    ck_assert_int_eq(matches[0], tpl_id1);
 }
 END_TEST
 
 START_TEST(tpl_not_found)
 {
     BGM_status status;
-    bool found;
-    unsigned int id = 3;
+    unsigned int matches[1];
+    unsigned int matches_length = 1;
 
-    status = BGM_identify(&ctx2, &tpl2, &found, &id);
+    status = BGM_identify(&ctx2, &tpl2, &matches_length, matches);
     ck_assert_int_eq(status, BGM_SUCCESS);
-    ck_assert_int_eq(id, BGM_RESERVED_TEMPLATE_ID);
-    ck_assert(!found);
+    ck_assert_int_eq(matches_length, 0);
 }
 END_TEST
 
 START_TEST(success_2_templates)
 {
     BGM_status status;
-    bool found;
-    unsigned int id = 3;
+    unsigned int matches[1];
+    unsigned int matches_length = 1;
 
     status = BGM_add_template(&ctx2, &tpl2, &tpl_id2);
     ck_assert_int_eq(status, BGM_SUCCESS);
     ck_assert_int_eq(tpl_id2, 1);
 
-    status = BGM_identify(&ctx2, &tpl2, &found, &id);
+    status = BGM_identify(&ctx2, &tpl2, &matches_length, matches);
     ck_assert_int_eq(status, BGM_SUCCESS);
-    ck_assert_int_eq(id, tpl_id2);
-    ck_assert(found);
+    ck_assert_int_eq(matches_length, 1);
+    ck_assert_int_eq(matches[0], tpl_id2);
 
-    status = BGM_identify(&ctx2, &tpl1, &found, &id);
+    matches_length = 1;
+    status = BGM_identify(&ctx2, &tpl1, &matches_length, matches);
     ck_assert_int_eq(status, BGM_SUCCESS);
-    ck_assert_int_eq(id, tpl_id1);
-    ck_assert(found);
+    ck_assert_int_eq(matches_length, 1);
+    ck_assert_int_eq(matches[0], tpl_id1);
 }
 END_TEST
 

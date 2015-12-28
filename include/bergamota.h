@@ -70,12 +70,11 @@ BGM_status BGM_remove_template(struct BGM_context *ctx,
 
 BGM_status BGM_identify(struct BGM_context *ctx,
                         struct BGM_template *tpl,
-                        bool *found,
-                        unsigned int *tpl_id);
+                        unsigned int *num_ids,
+                        unsigned int *ids);
 
 BGM_status BGM_template_from_xyt(char *xyt_buffer,
                                  struct BGM_template *tpl,
-                                 unsigned int max_num_minutiae,
                                  unsigned int num_neighbors);
 
 BGM_status BGM_template_from_raw_image(unsigned char *buffer,
@@ -84,7 +83,6 @@ BGM_status BGM_template_from_raw_image(unsigned char *buffer,
                                        unsigned int pixel_depth,
                                        unsigned int resolution_in_ppi,
                                        struct BGM_template *tpl,
-                                       unsigned int max_num_minutiae,
                                        unsigned int num_neighbors);
 
 void BGM_destroy_template(struct BGM_template *tpl);

@@ -104,7 +104,7 @@ _BGM_add_neighbor(struct BGM_context *ctx,
 
             if (status == BGM_SUCCESS) {
                 ctx->db.data[group_index][position] =
-                    (tpl_id * MAX_MINUTIAE_PER_TEMPLATE_DFL) + min_id;
+                    (tpl_id * MAX_MINUTIAE_PER_TEMPLATE) + min_id;
             }
         }
     }

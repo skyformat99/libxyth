@@ -27,7 +27,6 @@ START_TEST(simple_success)
                                          test_raw_image1_pixel_depth,
                                          test_raw_image1_ppi,
                                          &tpl,
-                                         100,
                                          10);
     ck_assert_int_eq(status, BGM_SUCCESS);
     ck_assert_int_eq(tpl.magic_num, _BGM_TEMPLATE_INIT_MAGIC_NUMBER);

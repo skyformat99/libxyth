@@ -27,7 +27,7 @@ remove_template_setup()
 {
     BGM_status status;
 
-    status = BGM_template_from_xyt(XYT_OK, &tpl3, 64, 10);
+    status = BGM_template_from_xyt(XYT_OK, &tpl3, 10);
     ck_assert_int_eq(status, BGM_SUCCESS);
 
     status = BGM_create_context(&ctx1, NULL);
