@@ -21,7 +21,7 @@
 #include <check.h>
 #include <xyth.h>
 
-#define XYT_OK \
+#define XYT_OK                                                                 \
     "1 2 3\n 4 5 6\n 7 8 9\n 10 11 12\n 13 14 15\n \
                 16 17 18\n 19 20 21\n 22 23 24\n 25 26 27\n \
                 28 29 30\n 31 32 33\n 34 35 36\n 37 38 39\n \
@@ -31,8 +31,7 @@
 struct XYTH_template tpl3 = {0};
 struct XYTH_context ctx1 = {0};
 
-void
-remove_template_setup()
+void remove_template_setup()
 {
     XYTH_status status;
 
@@ -43,8 +42,7 @@ remove_template_setup()
     ck_assert_int_eq(status, XYTH_SUCCESS);
 }
 
-void
-remove_template_teardown()
+void remove_template_teardown()
 {
     XYTH_destroy_template(&tpl3);
     XYTH_destroy_context(&ctx1);
@@ -109,15 +107,13 @@ START_TEST(invalid_template)
 }
 END_TEST
 
-TCase *
-remove_template_tcase(void)
+TCase *remove_template_tcase(void)
 {
     TCase *tcase;
 
     tcase = tcase_create("RemoveTemplate");
 
-    tcase_add_unchecked_fixture(tcase,
-                                remove_template_setup,
+    tcase_add_unchecked_fixture(tcase, remove_template_setup,
                                 remove_template_teardown);
 
     tcase_add_test(tcase, simple_success);

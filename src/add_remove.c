@@ -29,8 +29,8 @@
 #include "common.h"
 #include "config.h"
 
-static XYTH_status
-_XYTH_add_positions(struct XYTH_context *ctx, unsigned int group_index)
+static XYTH_status _XYTH_add_positions(struct XYTH_context *ctx,
+                                       unsigned int group_index)
 {
     XYTH_status status;
 
@@ -39,8 +39,7 @@ _XYTH_add_positions(struct XYTH_context *ctx, unsigned int group_index)
             malloc(ctx->db_cfg.alloc_step * sizeof(unsigned int));
         if (ctx->db.data[group_index] != NULL) {
             ctx->db.alloc_counter[group_index] = ctx->db_cfg.alloc_step;
-            memset(ctx->db.data[group_index],
-                   -1,
+            memset(ctx->db.data[group_index], -1,
                    ctx->db_cfg.alloc_step * sizeof(unsigned int));
             status = XYTH_SUCCESS;
         } else {
@@ -53,17 +52,15 @@ _XYTH_add_positions(struct XYTH_context *ctx, unsigned int group_index)
         old_ptr = ctx->db.data[group_index];
         old_alloc_counter = ctx->db.alloc_counter[group_index];
 
-        ctx->db.data[group_index] =
-            malloc((ctx->db.alloc_counter[group_index] + ctx->db_cfg.alloc_step)
-                   * sizeof(unsigned int));
+        ctx->db.data[group_index] = malloc(
+            (ctx->db.alloc_counter[group_index] + ctx->db_cfg.alloc_step) *
+            sizeof(unsigned int));
         if (ctx->db.data[group_index] != NULL) {
             ctx->db.alloc_counter[group_index] += ctx->db_cfg.alloc_step;
-            memcpy(ctx->db.data[group_index],
-                   old_ptr,
+            memcpy(ctx->db.data[group_index], old_ptr,
                    old_alloc_counter * sizeof(unsigned int));
             free(old_ptr);
-            memset(&ctx->db.data[group_index][old_alloc_counter],
-                   -1,
+            memset(&ctx->db.data[group_index][old_alloc_counter], -1,
                    ctx->db_cfg.alloc_step * sizeof(unsigned int));
             status = XYTH_SUCCESS;
         } else {
@@ -75,20 +72,15 @@ _XYTH_add_positions(struct XYTH_context *ctx, unsigned int group_index)
     return status;
 }
 
-static XYTH_status
-_XYTH_add_neighbor(struct XYTH_context *ctx,
-                   struct _XYTH_neighbor *nei,
-                   unsigned int tpl_id,
-                   unsigned int min_id)
+static XYTH_status _XYTH_add_neighbor(struct XYTH_context *ctx,
+                                      struct _XYTH_neighbor *nei,
+                                      unsigned int tpl_id, unsigned int min_id)
 {
     XYTH_status status;
     unsigned int group_index;
 
-    status = _XYTH_calc_group_index(ctx,
-                                    nei->relative_x,
-                                    nei->relative_y,
-                                    nei->relative_angle,
-                                    &group_index);
+    status = _XYTH_calc_group_index(ctx, nei->relative_x, nei->relative_y,
+                                    nei->relative_angle, &group_index);
     if (status == XYTH_SUCCESS) {
         if (ctx->db.alloc_counter[group_index] == 0) {
             status = _XYTH_add_positions(ctx, group_index);
@@ -101,8 +93,9 @@ _XYTH_add_neighbor(struct XYTH_context *ctx,
             // downwards to find the
             // first
             //       free position.
-            for (position = 0; position < ctx->db.alloc_counter[group_index]
-                 && ctx->db.data[group_index][position] != (unsigned int)-1;
+            for (position = 0;
+                 position < ctx->db.alloc_counter[group_index] &&
+                 ctx->db.data[group_index][position] != (unsigned int)-1;
                  position++)
                 ;
 
@@ -122,26 +115,22 @@ _XYTH_add_neighbor(struct XYTH_context *ctx,
     return status;
 }
 
-static XYTH_status
-_XYTH_remove_neighbor(struct XYTH_context *ctx,
-                      struct _XYTH_neighbor *nei,
-                      unsigned int tpl_id,
-                      unsigned int min_id)
+static XYTH_status _XYTH_remove_neighbor(struct XYTH_context *ctx,
+                                         struct _XYTH_neighbor *nei,
+                                         unsigned int tpl_id,
+                                         unsigned int min_id)
 {
     XYTH_status status;
     unsigned int group_index;
 
-    status = _XYTH_calc_group_index(ctx,
-                                    nei->relative_x,
-                                    nei->relative_y,
-                                    nei->relative_angle,
-                                    &group_index);
+    status = _XYTH_calc_group_index(ctx, nei->relative_x, nei->relative_y,
+                                    nei->relative_angle, &group_index);
     if (status == XYTH_SUCCESS) {
         if (ctx->db.alloc_counter[group_index] != 0) {
             unsigned int position;
-            for (position = 0; position < ctx->db.alloc_counter[group_index]
-                 && ctx->db.data[group_index][position]
-                     != (tpl_id << 6) + min_id;
+            for (position = 0;
+                 position < ctx->db.alloc_counter[group_index] &&
+                 ctx->db.data[group_index][position] != (tpl_id << 6) + min_id;
                  position++)
                 ;
 
@@ -159,10 +148,9 @@ _XYTH_remove_neighbor(struct XYTH_context *ctx,
     return status;
 }
 
-static XYTH_status
-_XYTH_add_minutia(struct XYTH_context *ctx,
-                  struct _XYTH_minutia *min,
-                  unsigned int tpl_id)
+static XYTH_status _XYTH_add_minutia(struct XYTH_context *ctx,
+                                     struct _XYTH_minutia *min,
+                                     unsigned int tpl_id)
 {
     XYTH_status status = XYTH_SUCCESS;
 
@@ -171,10 +159,8 @@ _XYTH_add_minutia(struct XYTH_context *ctx,
         if (status != XYTH_SUCCESS) {
             for (unsigned int j = 0; j < i; j++) {
                 XYTH_status debug_status;
-                debug_status = _XYTH_remove_neighbor(ctx,
-                                                     &min->neighbors[j],
-                                                     tpl_id,
-                                                     min->id);
+                debug_status = _XYTH_remove_neighbor(ctx, &min->neighbors[j],
+                                                     tpl_id, min->id);
                 PRINT_IF_ERROR(debug_status);
             }
             break;
@@ -185,10 +171,9 @@ _XYTH_add_minutia(struct XYTH_context *ctx,
     return status;
 }
 
-static XYTH_status
-_XYTH_remove_minutia(struct XYTH_context *ctx,
-                     struct _XYTH_minutia *min,
-                     unsigned int tpl_id)
+static XYTH_status _XYTH_remove_minutia(struct XYTH_context *ctx,
+                                        struct _XYTH_minutia *min,
+                                        unsigned int tpl_id)
 {
     XYTH_status status = XYTH_SUCCESS;
     int error_count = 0;
@@ -204,10 +189,9 @@ _XYTH_remove_minutia(struct XYTH_context *ctx,
     return (error_count == 0) ? XYTH_SUCCESS : XYTH_E_NOT_FOUND;
 }
 
-static XYTH_status
-_XYTH_add_template(struct XYTH_context *ctx,
-                   struct XYTH_template *tpl,
-                   unsigned int *tpl_id)
+static XYTH_status _XYTH_add_template(struct XYTH_context *ctx,
+                                      struct XYTH_template *tpl,
+                                      unsigned int *tpl_id)
 {
     XYTH_status status = XYTH_E_TOO_FEW_MINUTIAE;
 
@@ -217,8 +201,7 @@ _XYTH_add_template(struct XYTH_context *ctx,
         if (status != XYTH_SUCCESS) {
             for (unsigned int j = 0; j < i; j++) {
                 XYTH_status debug_status;
-                debug_status = _XYTH_remove_minutia(ctx,
-                                                    &tpl->minutiae[j],
+                debug_status = _XYTH_remove_minutia(ctx, &tpl->minutiae[j],
                                                     ctx->db.next_template_id);
                 PRINT_IF_ERROR(debug_status);
             }
@@ -240,10 +223,8 @@ _XYTH_add_template(struct XYTH_context *ctx,
 ////////////////////////////////  P U B L I C  /////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-XYTH_status
-XYTH_add_template(struct XYTH_context *ctx,
-                  struct XYTH_template *tpl,
-                  unsigned int *tpl_id)
+XYTH_status XYTH_add_template(struct XYTH_context *ctx,
+                              struct XYTH_template *tpl, unsigned int *tpl_id)
 {
     XYTH_status status;
 
@@ -272,10 +253,9 @@ XYTH_add_template(struct XYTH_context *ctx,
     return status;
 }
 
-XYTH_status
-_XYTH_remove_template(struct XYTH_context *ctx,
-                      struct XYTH_template *tpl,
-                      unsigned int tpl_id)
+XYTH_status _XYTH_remove_template(struct XYTH_context *ctx,
+                                  struct XYTH_template *tpl,
+                                  unsigned int tpl_id)
 {
     XYTH_status status;
     unsigned int removed_minutiae = 0;
@@ -306,10 +286,8 @@ _XYTH_remove_template(struct XYTH_context *ctx,
     return status;
 }
 
-XYTH_status
-XYTH_remove_template(struct XYTH_context *ctx,
-                     struct XYTH_template *tpl,
-                     unsigned int tpl_id)
+XYTH_status XYTH_remove_template(struct XYTH_context *ctx,
+                                 struct XYTH_template *tpl, unsigned int tpl_id)
 {
     XYTH_status status;
 

@@ -26,8 +26,7 @@ TCase *template_from_xyt_tcase(void);
 // From check_destroy_template.c
 TCase *destroy_template_tcase(void);
 
-Suite *
-template_suite(void)
+Suite *template_suite(void)
 {
     Suite *suite;
 

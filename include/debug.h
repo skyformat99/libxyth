@@ -62,36 +62,32 @@
 
 #ifdef _XYTH_DEBUG
 #warning "DEBUG mode!"
-#define PDEBUG(fmt, args...)                                       \
-    printf(FILENAME_COLOR __FILE__ ":" FUNC_COLOR "%s:" LINE_COLOR \
-                                   "%d: " RESET fmt,               \
-           __FUNCTION__,                                           \
-           __LINE__,                                               \
-           ##args)
-#define PERROR(fmt, args...)                                                \
-    printf(F_RED B_BLACK "[ ERROR ]" FILENAME_COLOR __FILE__ ":" FUNC_COLOR \
-                         "%s:" LINE_COLOR "%d: " RESET fmt,                 \
-           __FUNCTION__,                                                    \
-           __LINE__,                                                        \
-           ##args)
+#define PDEBUG(fmt, args...)                                                   \
+    printf(FILENAME_COLOR __FILE__ ":" FUNC_COLOR "%s:" LINE_COLOR             \
+                                   "%d: " RESET fmt,                           \
+           __FUNCTION__, __LINE__, ##args)
+#define PERROR(fmt, args...)                                                   \
+    printf(F_RED B_BLACK "[ ERROR ]" FILENAME_COLOR __FILE__ ":" FUNC_COLOR    \
+                         "%s:" LINE_COLOR "%d: " RESET fmt,                    \
+           __FUNCTION__, __LINE__, ##args)
 #else
 #define PDEBUG(fmt, args...)
 #define PERROR(fmt, args...)
 #endif
 
-#define PRINT_IF_ERROR(s)             \
-    if (s != XYTH_SUCCESS) {           \
-        PERROR("%s = %d\n", (#s), s); \
+#define PRINT_IF_ERROR(s)                                                      \
+    if (s != XYTH_SUCCESS) {                                                   \
+        PERROR("%s = %d\n", (#s), s);                                          \
     }
 
-#define PRINT_IF_NULL(ptr)              \
-    if (ptr == NULL) {                  \
-        PERROR("%s == NULL\n", (#ptr)); \
+#define PRINT_IF_NULL(ptr)                                                     \
+    if (ptr == NULL) {                                                         \
+        PERROR("%s == NULL\n", (#ptr));                                        \
     }
 
-#define PRINT_IF_TRUE(cond)      \
-    if (cond) {                  \
-        PERROR("%s\n", (#cond)); \
+#define PRINT_IF_TRUE(cond)                                                    \
+    if (cond) {                                                                \
+        PERROR("%s\n", (#cond));                                               \
     }
 
 #endif // DEBUG_H

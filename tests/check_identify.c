@@ -21,14 +21,14 @@
 #include <check.h>
 #include <xyth.h>
 
-#define XYT_OK1 \
+#define XYT_OK1                                                                \
     "1  2 45\n  4  5 45\n  7  8 45\n 10 11 45\n 13 14 45\n \
                 16 17 45\n 19 20 45\n 22 23 45\n 25 26 45\n \
                 28 29 45\n 31 32 45\n 34 35 45\n 37 38 45\n \
                 40 41 45\n 43 44 45\n 46 47 45\n 49 50 45\n \
                 52 53 45\n 55 56 45\n 58 59 45\n 61 62 45\n"
 
-#define XYT_OK2 \
+#define XYT_OK2                                                                \
     "1  2 90\n  4  5 90\n  7  8 90\n 10 11 90\n 13 14 90\n \
                 16 17 90\n 19 20 90\n 22 23 90\n 25 26 90\n \
                 28 29 90\n 31 32 90\n 34 35 90\n 37 38 90\n \
@@ -41,8 +41,7 @@ struct XYTH_context ctx2 = {0};
 unsigned int tpl_id1;
 unsigned int tpl_id2;
 
-void
-identify_setup()
+void identify_setup()
 {
     XYTH_status status;
 
@@ -66,8 +65,7 @@ identify_setup()
     ck_assert_int_eq(tpl_id1, 0);
 }
 
-void
-identify_teardown()
+void identify_teardown()
 {
     XYTH_destroy_template(&tpl1);
     XYTH_destroy_template(&tpl2);
@@ -122,8 +120,7 @@ START_TEST(success_2_templates)
 }
 END_TEST
 
-TCase *
-identify_tcase(void)
+TCase *identify_tcase(void)
 {
     TCase *tcase;
 

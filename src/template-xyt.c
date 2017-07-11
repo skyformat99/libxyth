@@ -29,8 +29,7 @@
 #include "config.h"
 #include "template-common.h"
 
-static XYTH_status
-_XYTH_parse_xyt_value(char *str, unsigned int *uint_value)
+static XYTH_status _XYTH_parse_xyt_value(char *str, unsigned int *uint_value)
 {
     long temp_value;
     char *end_ptr;
@@ -51,8 +50,8 @@ _XYTH_parse_xyt_value(char *str, unsigned int *uint_value)
     return status;
 }
 
-static XYTH_status
-_XYTH_parse_xyt_line(char *line, unsigned int id, struct _XYTH_minutia *minutia)
+static XYTH_status _XYTH_parse_xyt_line(char *line, unsigned int id,
+                                        struct _XYTH_minutia *minutia)
 {
     char *field;
     char *field_ctx;
@@ -99,8 +98,8 @@ _XYTH_parse_xyt_line(char *line, unsigned int id, struct _XYTH_minutia *minutia)
     return status;
 }
 
-static XYTH_status
-_XYTH_parse_xyt_multiline(char *xyt_buffer, struct XYTH_template *tpl)
+static XYTH_status _XYTH_parse_xyt_multiline(char *xyt_buffer,
+                                             struct XYTH_template *tpl)
 {
     char *line;
     char *line_ctx;
@@ -115,16 +114,15 @@ _XYTH_parse_xyt_multiline(char *xyt_buffer, struct XYTH_template *tpl)
         do {
             if (line != NULL) {
                 PDEBUG("line: %s\n", line);
-                status = _XYTH_parse_xyt_line(line,
-                                              minutia_counter,
+                status = _XYTH_parse_xyt_line(line, minutia_counter,
                                               &tpl->minutiae[minutia_counter]);
                 if (status == XYTH_SUCCESS) {
                     minutia_counter++;
                 }
                 line = strtok_r(NULL, "\n", &line_ctx);
             }
-        } while (line != NULL && status == XYTH_SUCCESS
-                 && minutia_counter < MAX_MINUTIAE_PER_TEMPLATE);
+        } while (line != NULL && status == XYTH_SUCCESS &&
+                 minutia_counter < MAX_MINUTIAE_PER_TEMPLATE);
         // If, at least, one minutia was parsed successfully, and the last call
         // to '_XYTH_minutia_from_xyt' returned success, everything is fine.
         if (minutia_counter > 0 && status == XYTH_SUCCESS) {
@@ -148,10 +146,8 @@ _XYTH_parse_xyt_multiline(char *xyt_buffer, struct XYTH_template *tpl)
 ////////////////////////////////  P U B L I C  /////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-XYTH_status
-XYTH_template_from_xyt(char *xyt_buffer,
-                       struct XYTH_template *tpl,
-                       unsigned int num_neighbors)
+XYTH_status XYTH_template_from_xyt(char *xyt_buffer, struct XYTH_template *tpl,
+                                   unsigned int num_neighbors)
 {
     char *buffer_copy;
     int buffer_size;

@@ -35,8 +35,7 @@ TCase *remove_template_tcase(void);
 // From check_identify.c
 TCase *identify_tcase(void);
 
-Suite *
-context_suite(void)
+Suite *context_suite(void)
 {
     Suite *suite;
     TCase *id_tcase;

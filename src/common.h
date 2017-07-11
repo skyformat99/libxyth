@@ -23,15 +23,10 @@
 
 #include <context.h>
 
-int _XYTH_calc_group_index(struct XYTH_context *ctx,
-                          int x,
-                          int y,
-                          unsigned int t,
-                          unsigned int *group_index);
+int _XYTH_calc_group_index(struct XYTH_context *ctx, int x, int y,
+                           unsigned int t, unsigned int *group_index);
 
-void _XYTH_calc_num_groups(struct XYTH_context *ctx,
-                          unsigned int *x_groups,
-                          unsigned int *y_groups,
-                          unsigned int *t_groups);
+void _XYTH_calc_num_groups(struct XYTH_context *ctx, unsigned int *x_groups,
+                           unsigned int *y_groups, unsigned int *t_groups);
 
 #endif // COMMON_H

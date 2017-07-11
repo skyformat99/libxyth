@@ -34,7 +34,7 @@ struct XYTH_template {
     struct _XYTH_minutia *minutiae;
 };
 
-#define _XYTH_IS_TEMPLATE_INITIALIZED(tpl) \
+#define _XYTH_IS_TEMPLATE_INITIALIZED(tpl)                                     \
     ((tpl).magic_num == _XYTH_TEMPLATE_INIT_MAGIC_NUMBER)
 
 #endif // TEMPLATE_H

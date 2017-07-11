@@ -25,7 +25,7 @@
 
 void _XYTH_reset_template(struct XYTH_template *tpl);
 
-XYTH_status
-_XYTH_intialize_template(struct XYTH_template *tpl, unsigned int num_neighbors);
+XYTH_status _XYTH_intialize_template(struct XYTH_template *tpl,
+                                     unsigned int num_neighbors);
 
 #endif // TEMPLATECOMMON_H

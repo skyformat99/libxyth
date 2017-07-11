@@ -71,25 +71,25 @@ struct XYTH_database_config {
 };
 
 // Macros for basic structure manipulation
-#define _XYTH_DB_CONFIG_SET_MAX_COORD(cfg, x, y) \
-    do {                                        \
-        cfg.max_x = x;                          \
-        cfg.max_y = y;                          \
+#define _XYTH_DB_CONFIG_SET_MAX_COORD(cfg, x, y)                               \
+    do {                                                                       \
+        cfg.max_x = x;                                                         \
+        cfg.max_y = y;                                                         \
     } while (0)
 
-#define _XYTH_DB_CONFIG_SET_DENSITY(cfg, ppg, dpg) \
-    do {                                          \
-        cfg.pixels_per_group = ppg;               \
-        cfg.degrees_per_group = dpg;              \
+#define _XYTH_DB_CONFIG_SET_DENSITY(cfg, ppg, dpg)                             \
+    do {                                                                       \
+        cfg.pixels_per_group = ppg;                                            \
+        cfg.degrees_per_group = dpg;                                           \
     } while (0)
 
-#define _XYTH_DB_CONFIG_INIT(cfg)                          \
-    do {                                                  \
-        cfg.max_x = DB_MAX_X_COORD_DFL;                   \
-        cfg.max_y = DB_MAX_Y_COORD_DFL;                   \
-        cfg.pixels_per_group = DB_PIXELS_PER_GROUP_DFL;   \
-        cfg.degrees_per_group = DB_DEGREES_PER_GROUP_DFL; \
-        cfg.alloc_step = DB_ALLOC_STEP_DFL;               \
+#define _XYTH_DB_CONFIG_INIT(cfg)                                              \
+    do {                                                                       \
+        cfg.max_x = DB_MAX_X_COORD_DFL;                                        \
+        cfg.max_y = DB_MAX_Y_COORD_DFL;                                        \
+        cfg.pixels_per_group = DB_PIXELS_PER_GROUP_DFL;                        \
+        cfg.degrees_per_group = DB_DEGREES_PER_GROUP_DFL;                      \
+        cfg.alloc_step = DB_ALLOC_STEP_DFL;                                    \
     } while (0)
 
 //
@@ -113,7 +113,7 @@ struct XYTH_context {
     struct _XYTH_database db;
 };
 
-#define _XYTH_IS_CONTEXT_INITIALIZED(ctx) \
+#define _XYTH_IS_CONTEXT_INITIALIZED(ctx)                                      \
     ((ctx).magic_number == _XYTH_CONTEXT_INIT_MAGIC_NUMBER)
 
 #endif // CONTEXT_H

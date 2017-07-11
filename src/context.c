@@ -28,8 +28,7 @@
 
 #include "common.h"
 
-static void
-_XYTH_set_dfl_match_config(struct _XYTH_match_config *cfg)
+static void _XYTH_set_dfl_match_config(struct _XYTH_match_config *cfg)
 {
     cfg->failure_threshold = MATCH_FAILURE_THRESHOLD_DFL;
     cfg->minutia_threshold = MATCH_MINUTIA_THRESHOLD_DFL;
@@ -39,8 +38,7 @@ _XYTH_set_dfl_match_config(struct _XYTH_match_config *cfg)
     cfg->y_tolerance = MATCH_Y_TOLERANCE_DFL;
 }
 
-static void
-_XYTH_set_dfl_database_config(struct XYTH_database_config *db_cfg)
+static void _XYTH_set_dfl_database_config(struct XYTH_database_config *db_cfg)
 {
     db_cfg->degrees_per_group = DB_DEGREES_PER_GROUP_DFL;
     db_cfg->max_x = DB_MAX_X_COORD_DFL;
@@ -55,9 +53,8 @@ _XYTH_set_custom_database_config(struct XYTH_database_config *in,
 {
     XYTH_status status;
 
-    if (in->degrees_per_group < 360 && in->max_x > 0 && in->max_y > 0
-        && in->pixels_per_group > 0
-        && in->alloc_step > 0) {
+    if (in->degrees_per_group < 360 && in->max_x > 0 && in->max_y > 0 &&
+        in->pixels_per_group > 0 && in->alloc_step > 0) {
         out->degrees_per_group = in->degrees_per_group;
         out->max_x = in->max_x;
         out->max_y = in->max_y;
@@ -72,8 +69,7 @@ _XYTH_set_custom_database_config(struct XYTH_database_config *in,
     return status;
 }
 
-static XYTH_status
-_XYTH_create_database(struct XYTH_context *ctx)
+static XYTH_status _XYTH_create_database(struct XYTH_context *ctx)
 {
     XYTH_status status;
     unsigned int num_groups;
@@ -82,8 +78,8 @@ _XYTH_create_database(struct XYTH_context *ctx)
     ctx->db.next_template_id = 0;
     ctx->db.templates_counter = 0;
 
-    if (ctx->db_cfg.degrees_per_group != 0
-        && ctx->db_cfg.pixels_per_group != 0) {
+    if (ctx->db_cfg.degrees_per_group != 0 &&
+        ctx->db_cfg.pixels_per_group != 0) {
         _XYTH_calc_num_groups(ctx, &x_groups, &y_groups, &t_groups);
         num_groups = x_groups * y_groups * t_groups;
         // Each group will hold a pointer
@@ -110,8 +106,7 @@ _XYTH_create_database(struct XYTH_context *ctx)
     return status;
 }
 
-static void
-_XYTH_destroy_database(struct XYTH_context *ctx)
+static void _XYTH_destroy_database(struct XYTH_context *ctx)
 {
     if (ctx->db.alloc_counter != NULL) {
         if (ctx->db.data != NULL) {
@@ -135,11 +130,9 @@ _XYTH_destroy_database(struct XYTH_context *ctx)
 ////////////////////////////////  P U B L I C  /////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-XYTH_status
-XYTH_set_match_tolerances(struct XYTH_context *ctx,
-                          unsigned int x_tol,
-                          unsigned int y_tol,
-                          unsigned int angle_tol)
+XYTH_status XYTH_set_match_tolerances(struct XYTH_context *ctx,
+                                      unsigned int x_tol, unsigned int y_tol,
+                                      unsigned int angle_tol)
 {
     XYTH_status status;
 
@@ -163,11 +156,10 @@ XYTH_set_match_tolerances(struct XYTH_context *ctx,
     return status;
 }
 
-XYTH_status
-XYTH_set_match_thresholds(struct XYTH_context *ctx,
-                          unsigned int minutia_threshold,
-                          unsigned int template_threshold,
-                          unsigned int failure_threshold)
+XYTH_status XYTH_set_match_thresholds(struct XYTH_context *ctx,
+                                      unsigned int minutia_threshold,
+                                      unsigned int template_threshold,
+                                      unsigned int failure_threshold)
 {
     XYTH_status status;
 
@@ -191,9 +183,8 @@ XYTH_set_match_thresholds(struct XYTH_context *ctx,
     return status;
 }
 
-XYTH_status
-XYTH_create_context(struct XYTH_context *ctx,
-                    struct XYTH_database_config *db_cfg)
+XYTH_status XYTH_create_context(struct XYTH_context *ctx,
+                                struct XYTH_database_config *db_cfg)
 {
     XYTH_status status;
 
@@ -227,8 +218,7 @@ XYTH_create_context(struct XYTH_context *ctx,
     return status;
 }
 
-void
-XYTH_destroy_context(struct XYTH_context *ctx)
+void XYTH_destroy_context(struct XYTH_context *ctx)
 {
     if (ctx != NULL) {
         if (_XYTH_IS_CONTEXT_INITIALIZED(*ctx)) {
@@ -242,8 +232,8 @@ XYTH_destroy_context(struct XYTH_context *ctx)
     }
 }
 
-XYTH_status
-XYTH_get_template_counter(struct XYTH_context *ctx, unsigned int *tpl_counter)
+XYTH_status XYTH_get_template_counter(struct XYTH_context *ctx,
+                                      unsigned int *tpl_counter)
 {
     XYTH_status status;
 

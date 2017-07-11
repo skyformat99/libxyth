@@ -47,13 +47,10 @@ struct _XYTH_global_score {
 // Given a linear value and its tolerance, calculates a range of values.
 // - 'range_begin' and 'range_end' are included in the range.
 //
-static void
-_XYTH_calculate_linear_range(int value,
-                             unsigned int tolerance,
-                             int min_possible_value,
-                             int max_possible_value,
-                             int *range_begin,
-                             int *range_end)
+static void _XYTH_calculate_linear_range(int value, unsigned int tolerance,
+                                         int min_possible_value,
+                                         int max_possible_value,
+                                         int *range_begin, int *range_end)
 {
     *range_begin = value - tolerance;
     if (*range_begin < min_possible_value) {
@@ -71,11 +68,10 @@ _XYTH_calculate_linear_range(int value,
 // - 'range_begin' and 'range_end' are part of the range.
 // - 'range_end' may be greater than 360.
 //
-static void
-_XYTH_define_angular_range(unsigned int value,
-                           unsigned int tolerance,
-                           unsigned int *range_begin,
-                           unsigned int *range_end)
+static void _XYTH_define_angular_range(unsigned int value,
+                                       unsigned int tolerance,
+                                       unsigned int *range_begin,
+                                       unsigned int *range_end)
 {
     int temp_begin;
 
@@ -93,19 +89,15 @@ _XYTH_define_angular_range(unsigned int value,
     }
 }
 
-static void
-_XYTH_reset_minutiae_scores(struct _XYTH_global_score *score)
+static void _XYTH_reset_minutiae_scores(struct _XYTH_global_score *score)
 {
-    memset(score->minutiae_scores,
-           0,
+    memset(score->minutiae_scores, 0,
            score->num_minutiae_scores * sizeof(unsigned int));
 }
 
-static void
-_XYTH_reset_template_scores(struct _XYTH_global_score *score)
+static void _XYTH_reset_template_scores(struct _XYTH_global_score *score)
 {
-    memset(score->template_scores,
-           0,
+    memset(score->template_scores, 0,
            score->num_template_scores * sizeof(unsigned int));
 
     score->num_matches = 0;
@@ -114,9 +106,8 @@ _XYTH_reset_template_scores(struct _XYTH_global_score *score)
 //
 // Creates and initializes a score structure.
 //
-static XYTH_status
-_XYTH_create_score(struct XYTH_context *context,
-                   struct _XYTH_global_score *score)
+static XYTH_status _XYTH_create_score(struct XYTH_context *context,
+                                      struct _XYTH_global_score *score)
 {
     XYTH_status status;
     score->num_minutiae_scores =
@@ -152,8 +143,7 @@ _XYTH_create_score(struct XYTH_context *context,
 //
 // Destroys a score structure.
 //
-static void
-_XYTH_destroy_score(struct _XYTH_global_score *score)
+static void _XYTH_destroy_score(struct _XYTH_global_score *score)
 {
     if (score->minutiae_scores != NULL) {
         free(score->minutiae_scores);
@@ -167,33 +157,23 @@ _XYTH_destroy_score(struct _XYTH_global_score *score)
 //
 // Given a neighbor, calculates the ranges for X, Y, and angle.
 //
-static void
-_XYTH_calc_compatibility_window(struct XYTH_context *context,
-                                struct _XYTH_neighbor *neighbor,
-                                int *x_begin,
-                                int *x_end,
-                                int *y_begin,
-                                int *y_end,
-                                unsigned int *angle_begin,
-                                unsigned int *angle_end)
+static void _XYTH_calc_compatibility_window(struct XYTH_context *context,
+                                            struct _XYTH_neighbor *neighbor,
+                                            int *x_begin, int *x_end,
+                                            int *y_begin, int *y_end,
+                                            unsigned int *angle_begin,
+                                            unsigned int *angle_end)
 {
-    _XYTH_calculate_linear_range(neighbor->relative_x,
-                                 context->match_cfg.x_tolerance,
-                                 -(context->db_cfg.max_x),
-                                 context->db_cfg.max_x,
-                                 x_begin,
-                                 x_end);
+    _XYTH_calculate_linear_range(
+        neighbor->relative_x, context->match_cfg.x_tolerance,
+        -(context->db_cfg.max_x), context->db_cfg.max_x, x_begin, x_end);
 
-    _XYTH_calculate_linear_range(neighbor->relative_y,
-                                 context->match_cfg.y_tolerance,
-                                 -(context->db_cfg.max_y),
-                                 context->db_cfg.max_y,
-                                 y_begin,
-                                 y_end);
+    _XYTH_calculate_linear_range(
+        neighbor->relative_y, context->match_cfg.y_tolerance,
+        -(context->db_cfg.max_y), context->db_cfg.max_y, y_begin, y_end);
 
     _XYTH_define_angular_range(neighbor->relative_angle,
-                               context->match_cfg.t_tolerance,
-                               angle_begin,
+                               context->match_cfg.t_tolerance, angle_begin,
                                angle_end);
 }
 
@@ -201,10 +181,9 @@ _XYTH_calc_compatibility_window(struct XYTH_context *context,
 // Computes one point (+1) in the score for each minutia referenced by the group
 // associated with 'group_index'.
 //
-static void
-_XYTH_update_minutia_score(struct XYTH_context *context,
-                           struct _XYTH_global_score *score,
-                           unsigned int group_index)
+static void _XYTH_update_minutia_score(struct XYTH_context *context,
+                                       struct _XYTH_global_score *score,
+                                       unsigned int group_index)
 {
     unsigned int *group;
     unsigned int group_length;
@@ -229,10 +208,9 @@ _XYTH_update_minutia_score(struct XYTH_context *context,
 // Finds minutiae that are compatible with 'neighbor', then updates the score
 // structure accordingly.
 //
-static void
-_XYTH_find_matching_minutiae(struct XYTH_context *context,
-                             struct _XYTH_neighbor *neighbor,
-                             struct _XYTH_global_score *score)
+static void _XYTH_find_matching_minutiae(struct XYTH_context *context,
+                                         struct _XYTH_neighbor *neighbor,
+                                         struct _XYTH_global_score *score)
 {
     int x_begin;
     int x_end;
@@ -242,14 +220,8 @@ _XYTH_find_matching_minutiae(struct XYTH_context *context,
     unsigned int angle_end;
     XYTH_status status;
 
-    _XYTH_calc_compatibility_window(context,
-                                    neighbor,
-                                    &x_begin,
-                                    &x_end,
-                                    &y_begin,
-                                    &y_end,
-                                    &angle_begin,
-                                    &angle_end);
+    _XYTH_calc_compatibility_window(context, neighbor, &x_begin, &x_end,
+                                    &y_begin, &y_end, &angle_begin, &angle_end);
 
     for (int x = x_begin; x <= x_end; x += context->db_cfg.pixels_per_group) {
         for (int y = y_begin; y <= y_end;
@@ -257,10 +229,7 @@ _XYTH_find_matching_minutiae(struct XYTH_context *context,
             for (unsigned int t = angle_begin; t <= angle_end;
                  t += context->db_cfg.degrees_per_group) {
                 unsigned int group_index;
-                status = _XYTH_calc_group_index(context,
-                                                x,
-                                                y,
-                                                t % 360,
+                status = _XYTH_calc_group_index(context, x, y, t % 360,
                                                 &group_index);
                 if (status == XYTH_SUCCESS) {
                     _XYTH_update_minutia_score(context, score, group_index);
@@ -272,9 +241,8 @@ _XYTH_find_matching_minutiae(struct XYTH_context *context,
 
 // Given a score structure, which contains minutiae's scores, creates a list of
 // candidates.
-static void
-_XYTH_calculate_templates_score(struct XYTH_context *context,
-                                struct _XYTH_global_score *score)
+static void _XYTH_calculate_templates_score(struct XYTH_context *context,
+                                            struct _XYTH_global_score *score)
 {
     for (unsigned int i = 0; i < score->num_minutiae_scores; i++) {
         if (score->minutiae_scores[i] >= context->match_cfg.minutia_threshold) {
@@ -284,8 +252,7 @@ _XYTH_calculate_templates_score(struct XYTH_context *context,
     }
 }
 
-static void
-_XYTH_sort_matches_list(struct _XYTH_global_score *score)
+static void _XYTH_sort_matches_list(struct _XYTH_global_score *score)
 {
     bool swapped;
     unsigned int n = score->num_matches;
@@ -293,8 +260,8 @@ _XYTH_sort_matches_list(struct _XYTH_global_score *score)
     do {
         swapped = false;
         for (unsigned int i = 1; i < n; i++) {
-            if (score->template_scores[score->matches[i]]
-                > score->template_scores[score->matches[i - 1]]) {
+            if (score->template_scores[score->matches[i]] >
+                score->template_scores[score->matches[i - 1]]) {
                 unsigned int tmp = score->matches[i - 1];
                 score->matches[i - 1] = score->matches[i];
                 score->matches[i] = tmp;
@@ -305,13 +272,12 @@ _XYTH_sort_matches_list(struct _XYTH_global_score *score)
     } while (swapped);
 }
 
-static void
-_XYTH_compile_matches_list(struct XYTH_context *context,
-                           struct _XYTH_global_score *score)
+static void _XYTH_compile_matches_list(struct XYTH_context *context,
+                                       struct _XYTH_global_score *score)
 {
     for (unsigned int i = 0; i < score->num_template_scores; i++) {
-        if (score->template_scores[i]
-            >= context->match_cfg.template_threshold) {
+        if (score->template_scores[i] >=
+            context->match_cfg.template_threshold) {
             score->matches[score->num_matches++] = i;
         }
     }
@@ -319,11 +285,10 @@ _XYTH_compile_matches_list(struct XYTH_context *context,
     _XYTH_sort_matches_list(score);
 }
 
-static XYTH_status
-_XYTH_identify(struct XYTH_context *ctx,
-               struct XYTH_template *tpl,
-               unsigned int *num_matches,
-               unsigned int *matches)
+static XYTH_status _XYTH_identify(struct XYTH_context *ctx,
+                                  struct XYTH_template *tpl,
+                                  unsigned int *num_matches,
+                                  unsigned int *matches)
 {
     XYTH_status status;
     struct _XYTH_global_score score;
@@ -336,10 +301,9 @@ _XYTH_identify(struct XYTH_context *ctx,
             for (unsigned int nei_index = 0;
                  nei_index < tpl->minutiae[min_index].num_neighbors;
                  nei_index++) {
-                _XYTH_find_matching_minutiae(ctx,
-                                             &tpl->minutiae[min_index]
-                                                  .neighbors[nei_index],
-                                             &score);
+                _XYTH_find_matching_minutiae(
+                    ctx, &tpl->minutiae[min_index].neighbors[nei_index],
+                    &score);
             }
             _XYTH_calculate_templates_score(ctx, &score);
             _XYTH_reset_minutiae_scores(&score);
@@ -361,11 +325,8 @@ _XYTH_identify(struct XYTH_context *ctx,
 ////////////////////////////////  P U B L I C  /////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-XYTH_status
-XYTH_identify(struct XYTH_context *ctx,
-              struct XYTH_template *tpl,
-              unsigned int *num_ids,
-              unsigned int *ids)
+XYTH_status XYTH_identify(struct XYTH_context *ctx, struct XYTH_template *tpl,
+                          unsigned int *num_ids, unsigned int *ids)
 {
     XYTH_status status;
 

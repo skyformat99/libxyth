@@ -34,10 +34,7 @@ START_TEST(simple_success)
 }
 END_TEST
 
-START_TEST(null_context)
-{
-    XYTH_destroy_context(NULL);
-}
+START_TEST(null_context) { XYTH_destroy_context(NULL); }
 END_TEST
 
 START_TEST(invalid_context)
@@ -49,8 +46,7 @@ START_TEST(invalid_context)
 }
 END_TEST
 
-TCase *
-destroy_context_tcase(void)
+TCase *destroy_context_tcase(void)
 {
     TCase *tcase;
 

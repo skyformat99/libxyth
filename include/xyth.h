@@ -25,8 +25,8 @@
 extern "C" {
 #endif // __cplusplus
 
-#include <stdbool.h>
 #include <context.h>
+#include <stdbool.h>
 
 #define XYTH_RESERVED_TEMPLATE_ID ((unsigned int)-1)
 
@@ -58,56 +58,48 @@ typedef enum {
 
 #define XYTH_DB_CONFIG_INIT(cfg) _XYTH_DB_CONFIG_INIT(cfg)
 
-#define XYTH_DB_CONFIG_SET_MAX_COORD(cfg, x, y) \
+#define XYTH_DB_CONFIG_SET_MAX_COORD(cfg, x, y)                                \
     _XYTH_DB_CONFIG_SET_MAX_COORD(cfg, x, y)
 
-#define XYTH_DB_CONFIG_SET_DENSITY(cfg, ppg, dpg) \
+#define XYTH_DB_CONFIG_SET_DENSITY(cfg, ppg, dpg)                              \
     _XYTH_DB_CONFIG_SET_DENSITY(cfg, ppg, dpg)
 
-XYTH_status
-XYTH_create_context(struct XYTH_context *ctx, struct XYTH_database_config *db_cfg);
+XYTH_status XYTH_create_context(struct XYTH_context *ctx,
+                                struct XYTH_database_config *db_cfg);
 
 void XYTH_destroy_context(struct XYTH_context *ctx);
 
 XYTH_status XYTH_add_template(struct XYTH_context *ctx,
-                            struct XYTH_template *tpl,
-                            unsigned int *tpl_id);
+                              struct XYTH_template *tpl, unsigned int *tpl_id);
 
 XYTH_status XYTH_remove_template(struct XYTH_context *ctx,
-                               struct XYTH_template *tpl,
-                               unsigned int tpl_id);
-
-XYTH_status XYTH_identify(struct XYTH_context *ctx,
-                        struct XYTH_template *tpl,
-                        unsigned int *num_ids,
-                        unsigned int *ids);
-
-XYTH_status XYTH_template_from_xyt(char *xyt_buffer,
                                  struct XYTH_template *tpl,
-                                 unsigned int num_neighbors);
+                                 unsigned int tpl_id);
 
-XYTH_status XYTH_template_from_raw_image(unsigned char *buffer,
-                                       unsigned int width,
-                                       unsigned int height,
-                                       unsigned int pixel_depth,
-                                       unsigned int resolution_in_ppi,
-                                       struct XYTH_template *tpl,
-                                       unsigned int num_neighbors);
+XYTH_status XYTH_identify(struct XYTH_context *ctx, struct XYTH_template *tpl,
+                          unsigned int *num_ids, unsigned int *ids);
+
+XYTH_status XYTH_template_from_xyt(char *xyt_buffer, struct XYTH_template *tpl,
+                                   unsigned int num_neighbors);
+
+XYTH_status XYTH_template_from_raw_image(
+    unsigned char *buffer, unsigned int width, unsigned int height,
+    unsigned int pixel_depth, unsigned int resolution_in_ppi,
+    struct XYTH_template *tpl, unsigned int num_neighbors);
 
 void XYTH_destroy_template(struct XYTH_template *tpl);
 
 XYTH_status XYTH_set_match_tolerances(struct XYTH_context *ctx,
-                                    unsigned int x_tol,
-                                    unsigned int y_tol,
-                                    unsigned int angle_tol);
+                                      unsigned int x_tol, unsigned int y_tol,
+                                      unsigned int angle_tol);
 
 XYTH_status XYTH_set_match_thresholds(struct XYTH_context *ctx,
-                                    unsigned int minutia_threshold,
-                                    unsigned int template_threshold,
-                                    unsigned int failure_threshold);
+                                      unsigned int minutia_threshold,
+                                      unsigned int template_threshold,
+                                      unsigned int failure_threshold);
 
-XYTH_status
-XYTH_get_template_counter(struct XYTH_context *ctx, unsigned int *tpl_counter);
+XYTH_status XYTH_get_template_counter(struct XYTH_context *ctx,
+                                      unsigned int *tpl_counter);
 
 #ifdef __cplusplus
 }

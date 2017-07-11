@@ -46,8 +46,7 @@ struct _XYTH_connection {
  *
  * @return The angle in degrees (0 .. 359)
  */
-static unsigned int
-_XYTH_xy_to_angle(int x, int y)
+static unsigned int _XYTH_xy_to_angle(int x, int y)
 {
     double direction;
 
@@ -77,11 +76,8 @@ _XYTH_xy_to_angle(int x, int y)
  * @param[out] x            Calculated X component.
  * @param[out] y            Calculated Y component
  */
-static void
-_XYTH_angle_to_xy(unsigned int magnitude,
-                  unsigned int direction,
-                  int *x,
-                  int *y)
+static void _XYTH_angle_to_xy(unsigned int magnitude, unsigned int direction,
+                              int *x, int *y)
 {
     double rad = direction * (M_PI / 180);
 
@@ -100,8 +96,8 @@ _XYTH_angle_to_xy(unsigned int magnitude,
  * @retval -1 (Connection1 < Connection2).
  * @retval  1 (Connection1 > Connection2).
  */
-static int
-_XYTH_sort_connections_by_magnitude(const void *ptr1, const void *ptr2)
+static int _XYTH_sort_connections_by_magnitude(const void *ptr1,
+                                               const void *ptr2)
 {
     struct _XYTH_connection *connection1;
     struct _XYTH_connection *connection2;
@@ -118,10 +114,9 @@ _XYTH_sort_connections_by_magnitude(const void *ptr1, const void *ptr2)
     }
 }
 
-static void
-_XYTH_connection_from_minutiae(struct _XYTH_minutia *first_minutia,
-                               struct _XYTH_minutia *second_minutia,
-                               struct _XYTH_connection *connection)
+static void _XYTH_connection_from_minutiae(struct _XYTH_minutia *first_minutia,
+                                           struct _XYTH_minutia *second_minutia,
+                                           struct _XYTH_connection *connection)
 {
     int dx;
     int dy;
@@ -157,22 +152,18 @@ _XYTH_connections_from_template(struct XYTH_template *tpl,
     for (unsigned int i = 0; i < (tpl->num_minutiae - 1); i++) {
         for (unsigned int j = (i + 1); j < tpl->num_minutiae; j++) {
             // Create connection using data from the two minutiae
-            _XYTH_connection_from_minutiae(&tpl->minutiae[i],
-                                           &tpl->minutiae[j],
+            _XYTH_connection_from_minutiae(&tpl->minutiae[i], &tpl->minutiae[j],
                                            &connections[*num_connections]);
             (*num_connections)++;
         }
     }
 
     // Sort connections by magnitude
-    qsort((void *)connections,
-          *num_connections,
-          sizeof(struct _XYTH_connection),
-          _XYTH_sort_connections_by_magnitude);
+    qsort((void *)connections, *num_connections,
+          sizeof(struct _XYTH_connection), _XYTH_sort_connections_by_magnitude);
 }
 
-static inline void
-_XYTH_destroy_minutia(struct _XYTH_minutia *minutia)
+static inline void _XYTH_destroy_minutia(struct _XYTH_minutia *minutia)
 {
     if (minutia->neighbors != NULL) {
         free(minutia->neighbors);
@@ -181,19 +172,17 @@ _XYTH_destroy_minutia(struct _XYTH_minutia *minutia)
     }
 }
 
-static void
-_XYTH_create_minutia_neighbors(struct _XYTH_minutia *minutia,
-                               struct _XYTH_connection *connections,
-                               unsigned int num_connections,
-                               unsigned int max_neighbors)
+static void _XYTH_create_minutia_neighbors(struct _XYTH_minutia *minutia,
+                                           struct _XYTH_connection *connections,
+                                           unsigned int num_connections,
+                                           unsigned int max_neighbors)
 {
     unsigned int neighbor_count = 0;
     unsigned int temp_angle;
 
     // For each connection
     for (unsigned int i = 0;
-         (i < num_connections) && (neighbor_count < max_neighbors);
-         i++) {
+         (i < num_connections) && (neighbor_count < max_neighbors); i++) {
         struct _XYTH_neighbor *cur_neighbor;
         cur_neighbor = &minutia->neighbors[neighbor_count];
         // Check whether the minutia is the first minutia of current connection
@@ -223,14 +212,12 @@ _XYTH_create_minutia_neighbors(struct _XYTH_minutia *minutia,
 
         cur_neighbor->relative_angle =
             cur_neighbor->relative_angle > minutia->angle
-            ? cur_neighbor->relative_angle - minutia->angle
-            : minutia->angle - cur_neighbor->relative_angle;
+                ? cur_neighbor->relative_angle - minutia->angle
+                : minutia->angle - cur_neighbor->relative_angle;
         // Calculate relative_x and relative_y from connection's magnitude and
         // temp_angle
-        _XYTH_angle_to_xy(connections[i].magnitude,
-                          temp_angle,
-                          &cur_neighbor->relative_x,
-                          &cur_neighbor->relative_y);
+        _XYTH_angle_to_xy(connections[i].magnitude, temp_angle,
+                          &cur_neighbor->relative_x, &cur_neighbor->relative_y);
 
         neighbor_count++;
     }
@@ -238,8 +225,7 @@ _XYTH_create_minutia_neighbors(struct _XYTH_minutia *minutia,
     minutia->num_neighbors = neighbor_count;
 }
 
-void
-_XYTH_reset_template(struct XYTH_template *tpl)
+void _XYTH_reset_template(struct XYTH_template *tpl)
 {
     tpl->magic_num = _XYTH_TEMPLATE_INIT_MAGIC_NUMBER;
     tpl->minutiae = NULL;
@@ -258,11 +244,9 @@ _XYTH_reset_template(struct XYTH_template *tpl)
  *
  * @return XYTH_SUCCESS  Only success for now (could it be a void function?).
  */
-static XYTH_status
-_XYTH_create_template_neighbors(struct XYTH_template *tpl,
-                                struct _XYTH_connection *connections,
-                                unsigned int num_connections,
-                                unsigned int num_neighbors)
+static XYTH_status _XYTH_create_template_neighbors(
+    struct XYTH_template *tpl, struct _XYTH_connection *connections,
+    unsigned int num_connections, unsigned int num_neighbors)
 {
     XYTH_status status = XYTH_SUCCESS;
 
@@ -274,10 +258,8 @@ _XYTH_create_template_neighbors(struct XYTH_template *tpl,
             malloc(num_neighbors * sizeof(*cur_minutia->neighbors));
         if (cur_minutia->neighbors != NULL) {
             // Populate minutia's neighbors using information from connections
-            _XYTH_create_minutia_neighbors(cur_minutia,
-                                           connections,
-                                           num_connections,
-                                           num_neighbors);
+            _XYTH_create_minutia_neighbors(cur_minutia, connections,
+                                           num_connections, num_neighbors);
         } else {
             // If memory allocation fails for a minutia's neighbors, free the
             // memory previously
@@ -302,8 +284,8 @@ _XYTH_create_template_neighbors(struct XYTH_template *tpl,
  * @retval XYTH_SUCCESS  Minutiae's neghborhood updated successfully.
  * @retval XYTH_E_GENERIC    An error ocurred.
  */
-XYTH_status
-_XYTH_intialize_template(struct XYTH_template *tpl, unsigned int num_neighbors)
+XYTH_status _XYTH_intialize_template(struct XYTH_template *tpl,
+                                     unsigned int num_neighbors)
 {
     XYTH_status status;
     struct _XYTH_connection *connections;
@@ -312,16 +294,14 @@ _XYTH_intialize_template(struct XYTH_template *tpl, unsigned int num_neighbors)
     // There is a minimun number of minutiae, depending on the required number
     // of neighbors.
     if (tpl->num_minutiae > num_neighbors) {
-        connections = malloc(tpl->num_minutiae * tpl->num_minutiae
-                             * sizeof(*connections));
+        connections = malloc(tpl->num_minutiae * tpl->num_minutiae *
+                             sizeof(*connections));
         if (connections != NULL) {
             // Create connections between every pair of minutiae
             _XYTH_connections_from_template(tpl, connections, &num_connections);
             // Identify the neighborhood of each minutia
-            status = _XYTH_create_template_neighbors(tpl,
-                                                     connections,
-                                                     num_connections,
-                                                     num_neighbors);
+            status = _XYTH_create_template_neighbors(
+                tpl, connections, num_connections, num_neighbors);
             if (status == XYTH_SUCCESS) {
                 // TODO: Review it. This assignment is also done in
                 // '_XYTH_reset_template'
@@ -344,8 +324,7 @@ _XYTH_intialize_template(struct XYTH_template *tpl, unsigned int num_neighbors)
 ////////////////////////////////  P U B L I C  /////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-void
-XYTH_destroy_template(struct XYTH_template *tpl)
+void XYTH_destroy_template(struct XYTH_template *tpl)
 {
     if (tpl != NULL) {
         if (_XYTH_IS_TEMPLATE_INITIALIZED(*tpl)) {
