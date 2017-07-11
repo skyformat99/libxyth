@@ -1,31 +1,40 @@
-/**
- * @file   template.h
- * @author rodrigo
- * @date   13/10/2014
- * @brief  Template structure declaration.
- *
- * Copyright (C) Rodrigo Dias Correa - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- */
+// Copyright 2011-2017 Rodrigo Dias Correa
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 #ifndef TEMPLATE_H
 #define TEMPLATE_H
 
 #include <minutia.h>
 
-#define _BGM_TEMPLATE_INIT_MAGIC_NUMBER 0x004D4742
+#define _XYTH_TEMPLATE_INIT_MAGIC_NUMBER 0x4854595A
 
 /**
  * A fingerprint template which is a collection of minutiae
  */
-struct BGM_template {
+struct XYTH_template {
     unsigned int magic_num;
     unsigned int num_minutiae;
-    struct _BGM_minutia *minutiae;
+    struct _XYTH_minutia *minutiae;
 };
 
-#define _BGM_IS_TEMPLATE_INITIALIZED(tpl) \
-    ((tpl).magic_num == _BGM_TEMPLATE_INIT_MAGIC_NUMBER)
+#define _XYTH_IS_TEMPLATE_INITIALIZED(tpl) \
+    ((tpl).magic_num == _XYTH_TEMPLATE_INIT_MAGIC_NUMBER)
 
 #endif // TEMPLATE_H

@@ -1,28 +1,37 @@
-/**
- * @file   identify.c
- * @author rodrigo
- * @date   07/04/2015
- * @brief  Implementation of BGM_identify().
- *
- * Copyright (C) Rodrigo Dias Correa - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- */
+// Copyright 2011-2017 Rodrigo Dias Correa
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
-#include <string.h>
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 
-#include <bergamota.h>
 #include <context.h>
 #include <debug.h>
+#include <xyth.h>
 
-#include "config.h"
 #include "common.h"
+#include "config.h"
 
-#define _BGM_MAX_MATCHES 100
+#define _XYTH_MAX_MATCHES 100
 
-struct _BGM_global_score {
+struct _XYTH_global_score {
     // minutiae
     unsigned int *minutiae_scores;
     unsigned int num_minutiae_scores;
@@ -31,7 +40,7 @@ struct _BGM_global_score {
     unsigned int num_template_scores;
     // result
     unsigned int num_matches;
-    unsigned int matches[_BGM_MAX_MATCHES];
+    unsigned int matches[_XYTH_MAX_MATCHES];
 };
 
 //
@@ -39,12 +48,12 @@ struct _BGM_global_score {
 // - 'range_begin' and 'range_end' are included in the range.
 //
 static void
-_BGM_calculate_linear_range(int value,
-                            unsigned int tolerance,
-                            int min_possible_value,
-                            int max_possible_value,
-                            int *range_begin,
-                            int *range_end)
+_XYTH_calculate_linear_range(int value,
+                             unsigned int tolerance,
+                             int min_possible_value,
+                             int max_possible_value,
+                             int *range_begin,
+                             int *range_end)
 {
     *range_begin = value - tolerance;
     if (*range_begin < min_possible_value) {
@@ -63,10 +72,10 @@ _BGM_calculate_linear_range(int value,
 // - 'range_end' may be greater than 360.
 //
 static void
-_BGM_define_angular_range(unsigned int value,
-                          unsigned int tolerance,
-                          unsigned int *range_begin,
-                          unsigned int *range_end)
+_XYTH_define_angular_range(unsigned int value,
+                           unsigned int tolerance,
+                           unsigned int *range_begin,
+                           unsigned int *range_end)
 {
     int temp_begin;
 
@@ -85,7 +94,7 @@ _BGM_define_angular_range(unsigned int value,
 }
 
 static void
-_BGM_reset_minutiae_scores(struct _BGM_global_score *score)
+_XYTH_reset_minutiae_scores(struct _XYTH_global_score *score)
 {
     memset(score->minutiae_scores,
            0,
@@ -93,7 +102,7 @@ _BGM_reset_minutiae_scores(struct _BGM_global_score *score)
 }
 
 static void
-_BGM_reset_template_scores(struct _BGM_global_score *score)
+_XYTH_reset_template_scores(struct _XYTH_global_score *score)
 {
     memset(score->template_scores,
            0,
@@ -105,10 +114,11 @@ _BGM_reset_template_scores(struct _BGM_global_score *score)
 //
 // Creates and initializes a score structure.
 //
-static BGM_status
-_BGM_create_score(struct BGM_context *context, struct _BGM_global_score *score)
+static XYTH_status
+_XYTH_create_score(struct XYTH_context *context,
+                   struct _XYTH_global_score *score)
 {
-    BGM_status status;
+    XYTH_status status;
     score->num_minutiae_scores =
         context->db.next_template_id * MAX_MINUTIAE_PER_TEMPLATE;
 
@@ -118,22 +128,22 @@ _BGM_create_score(struct BGM_context *context, struct _BGM_global_score *score)
         malloc(score->num_minutiae_scores * sizeof(unsigned int));
 
     if (score->minutiae_scores != NULL) {
-        _BGM_reset_minutiae_scores(score);
+        _XYTH_reset_minutiae_scores(score);
         score->template_scores =
             malloc(score->num_template_scores * sizeof(unsigned int));
 
         if (score->template_scores != NULL) {
-            _BGM_reset_template_scores(score);
-            status = BGM_SUCCESS;
+            _XYTH_reset_template_scores(score);
+            status = XYTH_SUCCESS;
         } else {
-            status = BGM_E_NO_MEMORY;
+            status = XYTH_E_NO_MEMORY;
         }
 
-        if (status != BGM_SUCCESS) {
+        if (status != XYTH_SUCCESS) {
             free(score->minutiae_scores);
         }
     } else {
-        status = BGM_E_NO_MEMORY;
+        status = XYTH_E_NO_MEMORY;
     }
 
     return status;
@@ -143,7 +153,7 @@ _BGM_create_score(struct BGM_context *context, struct _BGM_global_score *score)
 // Destroys a score structure.
 //
 static void
-_BGM_destroy_score(struct _BGM_global_score *score)
+_XYTH_destroy_score(struct _XYTH_global_score *score)
 {
     if (score->minutiae_scores != NULL) {
         free(score->minutiae_scores);
@@ -158,33 +168,33 @@ _BGM_destroy_score(struct _BGM_global_score *score)
 // Given a neighbor, calculates the ranges for X, Y, and angle.
 //
 static void
-_BGM_calc_compatibility_window(struct BGM_context *context,
-                               struct _BGM_neighbor *neighbor,
-                               int *x_begin,
-                               int *x_end,
-                               int *y_begin,
-                               int *y_end,
-                               unsigned int *angle_begin,
-                               unsigned int *angle_end)
+_XYTH_calc_compatibility_window(struct XYTH_context *context,
+                                struct _XYTH_neighbor *neighbor,
+                                int *x_begin,
+                                int *x_end,
+                                int *y_begin,
+                                int *y_end,
+                                unsigned int *angle_begin,
+                                unsigned int *angle_end)
 {
-    _BGM_calculate_linear_range(neighbor->relative_x,
-                                context->match_cfg.x_tolerance,
-                                -(context->db_cfg.max_x),
-                                context->db_cfg.max_x,
-                                x_begin,
-                                x_end);
+    _XYTH_calculate_linear_range(neighbor->relative_x,
+                                 context->match_cfg.x_tolerance,
+                                 -(context->db_cfg.max_x),
+                                 context->db_cfg.max_x,
+                                 x_begin,
+                                 x_end);
 
-    _BGM_calculate_linear_range(neighbor->relative_y,
-                                context->match_cfg.y_tolerance,
-                                -(context->db_cfg.max_y),
-                                context->db_cfg.max_y,
-                                y_begin,
-                                y_end);
+    _XYTH_calculate_linear_range(neighbor->relative_y,
+                                 context->match_cfg.y_tolerance,
+                                 -(context->db_cfg.max_y),
+                                 context->db_cfg.max_y,
+                                 y_begin,
+                                 y_end);
 
-    _BGM_define_angular_range(neighbor->relative_angle,
-                              context->match_cfg.t_tolerance,
-                              angle_begin,
-                              angle_end);
+    _XYTH_define_angular_range(neighbor->relative_angle,
+                               context->match_cfg.t_tolerance,
+                               angle_begin,
+                               angle_end);
 }
 
 //
@@ -192,9 +202,9 @@ _BGM_calc_compatibility_window(struct BGM_context *context,
 // associated with 'group_index'.
 //
 static void
-_BGM_update_minutia_score(struct BGM_context *context,
-                          struct _BGM_global_score *score,
-                          unsigned int group_index)
+_XYTH_update_minutia_score(struct XYTH_context *context,
+                           struct _XYTH_global_score *score,
+                           unsigned int group_index)
 {
     unsigned int *group;
     unsigned int group_length;
@@ -220,9 +230,9 @@ _BGM_update_minutia_score(struct BGM_context *context,
 // structure accordingly.
 //
 static void
-_BGM_find_matching_minutiae(struct BGM_context *context,
-                            struct _BGM_neighbor *neighbor,
-                            struct _BGM_global_score *score)
+_XYTH_find_matching_minutiae(struct XYTH_context *context,
+                             struct _XYTH_neighbor *neighbor,
+                             struct _XYTH_global_score *score)
 {
     int x_begin;
     int x_end;
@@ -230,16 +240,16 @@ _BGM_find_matching_minutiae(struct BGM_context *context,
     int y_end;
     unsigned int angle_begin;
     unsigned int angle_end;
-    BGM_status status;
+    XYTH_status status;
 
-    _BGM_calc_compatibility_window(context,
-                                   neighbor,
-                                   &x_begin,
-                                   &x_end,
-                                   &y_begin,
-                                   &y_end,
-                                   &angle_begin,
-                                   &angle_end);
+    _XYTH_calc_compatibility_window(context,
+                                    neighbor,
+                                    &x_begin,
+                                    &x_end,
+                                    &y_begin,
+                                    &y_end,
+                                    &angle_begin,
+                                    &angle_end);
 
     for (int x = x_begin; x <= x_end; x += context->db_cfg.pixels_per_group) {
         for (int y = y_begin; y <= y_end;
@@ -247,10 +257,13 @@ _BGM_find_matching_minutiae(struct BGM_context *context,
             for (unsigned int t = angle_begin; t <= angle_end;
                  t += context->db_cfg.degrees_per_group) {
                 unsigned int group_index;
-                status =
-                    _BGM_calc_group_index(context, x, y, t % 360, &group_index);
-                if (status == BGM_SUCCESS) {
-                    _BGM_update_minutia_score(context, score, group_index);
+                status = _XYTH_calc_group_index(context,
+                                                x,
+                                                y,
+                                                t % 360,
+                                                &group_index);
+                if (status == XYTH_SUCCESS) {
+                    _XYTH_update_minutia_score(context, score, group_index);
                 }
             }
         }
@@ -260,8 +273,8 @@ _BGM_find_matching_minutiae(struct BGM_context *context,
 // Given a score structure, which contains minutiae's scores, creates a list of
 // candidates.
 static void
-_BGM_calculate_templates_score(struct BGM_context *context,
-                               struct _BGM_global_score *score)
+_XYTH_calculate_templates_score(struct XYTH_context *context,
+                                struct _XYTH_global_score *score)
 {
     for (unsigned int i = 0; i < score->num_minutiae_scores; i++) {
         if (score->minutiae_scores[i] >= context->match_cfg.minutia_threshold) {
@@ -272,7 +285,7 @@ _BGM_calculate_templates_score(struct BGM_context *context,
 }
 
 static void
-_BGM_sort_matches_list(struct _BGM_global_score *score)
+_XYTH_sort_matches_list(struct _XYTH_global_score *score)
 {
     bool swapped;
     unsigned int n = score->num_matches;
@@ -293,8 +306,8 @@ _BGM_sort_matches_list(struct _BGM_global_score *score)
 }
 
 static void
-_BGM_compile_matches_list(struct BGM_context *context,
-                          struct _BGM_global_score *score)
+_XYTH_compile_matches_list(struct XYTH_context *context,
+                           struct _XYTH_global_score *score)
 {
     for (unsigned int i = 0; i < score->num_template_scores; i++) {
         if (score->template_scores[i]
@@ -303,41 +316,41 @@ _BGM_compile_matches_list(struct BGM_context *context,
         }
     }
 
-    _BGM_sort_matches_list(score);
+    _XYTH_sort_matches_list(score);
 }
 
-static BGM_status
-_BGM_identify(struct BGM_context *ctx,
-              struct BGM_template *tpl,
-              unsigned int *num_matches,
-              unsigned int *matches)
+static XYTH_status
+_XYTH_identify(struct XYTH_context *ctx,
+               struct XYTH_template *tpl,
+               unsigned int *num_matches,
+               unsigned int *matches)
 {
-    BGM_status status;
-    struct _BGM_global_score score;
+    XYTH_status status;
+    struct _XYTH_global_score score;
 
-    status = _BGM_create_score(ctx, &score);
+    status = _XYTH_create_score(ctx, &score);
 
-    if (status == BGM_SUCCESS) {
+    if (status == XYTH_SUCCESS) {
         for (unsigned int min_index = 0; min_index < tpl->num_minutiae;
              min_index++) {
             for (unsigned int nei_index = 0;
                  nei_index < tpl->minutiae[min_index].num_neighbors;
                  nei_index++) {
-                _BGM_find_matching_minutiae(ctx,
-                                            &tpl->minutiae[min_index]
-                                                 .neighbors[nei_index],
-                                            &score);
+                _XYTH_find_matching_minutiae(ctx,
+                                             &tpl->minutiae[min_index]
+                                                  .neighbors[nei_index],
+                                             &score);
             }
-            _BGM_calculate_templates_score(ctx, &score);
-            _BGM_reset_minutiae_scores(&score);
+            _XYTH_calculate_templates_score(ctx, &score);
+            _XYTH_reset_minutiae_scores(&score);
         }
-        _BGM_compile_matches_list(ctx, &score);
+        _XYTH_compile_matches_list(ctx, &score);
 
         if (score.num_matches < *num_matches) {
             *num_matches = score.num_matches;
         }
         memcpy(matches, score.matches, *num_matches * sizeof(matches[0]));
-        _BGM_destroy_score(&score);
+        _XYTH_destroy_score(&score);
     }
 
     PRINT_IF_ERROR(status);
@@ -348,34 +361,34 @@ _BGM_identify(struct BGM_context *ctx,
 ////////////////////////////////  P U B L I C  /////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-BGM_status
-BGM_identify(struct BGM_context *ctx,
-             struct BGM_template *tpl,
-             unsigned int *num_ids,
-             unsigned int *ids)
+XYTH_status
+XYTH_identify(struct XYTH_context *ctx,
+              struct XYTH_template *tpl,
+              unsigned int *num_ids,
+              unsigned int *ids)
 {
-    BGM_status status;
+    XYTH_status status;
 
     if (ctx == NULL || tpl == NULL || num_ids == NULL || ids == NULL) {
         PRINT_IF_NULL(ctx);
         PRINT_IF_NULL(tpl);
         PRINT_IF_NULL(num_ids);
         PRINT_IF_NULL(ids);
-        status = BGM_E_INVALID_PARAMETER;
+        status = XYTH_E_INVALID_PARAMETER;
         PRINT_IF_ERROR(status);
         return status;
     }
 
-    if (_BGM_IS_CONTEXT_INITIALIZED(*ctx)) {
-        if (_BGM_IS_TEMPLATE_INITIALIZED(*tpl)) {
-            status = _BGM_identify(ctx, tpl, num_ids, ids);
+    if (_XYTH_IS_CONTEXT_INITIALIZED(*ctx)) {
+        if (_XYTH_IS_TEMPLATE_INITIALIZED(*tpl)) {
+            status = _XYTH_identify(ctx, tpl, num_ids, ids);
         } else {
             PERROR("template not initialized\n");
-            status = BGM_E_NOT_INITIALIZED;
+            status = XYTH_E_NOT_INITIALIZED;
         }
     } else {
         PERROR("context not initialized\n");
-        status = BGM_E_NOT_INITIALIZED;
+        status = XYTH_E_NOT_INITIALIZED;
     }
 
     PRINT_IF_ERROR(status);

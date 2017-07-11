@@ -1,18 +1,27 @@
-/**
- * @file   debug.h
- * @author rodrigo
- * @date   13/10/2014
- * @brief  Debug macros
- *
- * Copyright (C) Rodrigo Dias Correa - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- */
+// Copyright 2011-2017 Rodrigo Dias Correa
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 #ifndef DEBUG_H
 #define DEBUG_H
 
-#include <bergamota.h>
+#include <xyth.h>
 
 #include <stddef.h>
 #include <stdio.h>
@@ -51,7 +60,7 @@
 #define LINE_COLOR F_RED B_BLACK
 #endif
 
-#ifdef _BGM_DEBUG
+#ifdef _XYTH_DEBUG
 #warning "DEBUG mode!"
 #define PDEBUG(fmt, args...)                                       \
     printf(FILENAME_COLOR __FILE__ ":" FUNC_COLOR "%s:" LINE_COLOR \
@@ -71,7 +80,7 @@
 #endif
 
 #define PRINT_IF_ERROR(s)             \
-    if (s != BGM_SUCCESS) {           \
+    if (s != XYTH_SUCCESS) {           \
         PERROR("%s = %d\n", (#s), s); \
     }
 

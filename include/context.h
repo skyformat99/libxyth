@@ -1,26 +1,35 @@
-/**
- * @file   match_context.h
- * @author rodrigo
- * @date   13/10/2014
- * @brief  Holds 'BGM_match_context' declaration
- *
- * Copyright (C) Rodrigo Dias Correa - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- */
+// Copyright 2011-2017 Rodrigo Dias Correa
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 #ifndef CONTEXT_H
 #define CONTEXT_H
 
 #include <template.h>
 
-#define _BGM_CONTEXT_INIT_MAGIC_NUMBER 0x004D4742
+#define _XYTH_CONTEXT_INIT_MAGIC_NUMBER 0x004D4742
 
 //
 // Match configuration
 //
 
-struct _BGM_match_config {
+struct _XYTH_match_config {
     unsigned int minutia_threshold; // No. of matching neighbors required to
                                     // consider two minutiae
                                     // compatible
@@ -53,7 +62,7 @@ struct _BGM_match_config {
 #define DB_ALLOC_STEP_DFL 32
 
 // Structure used to hold/transmit configuration
-struct BGM_database_config {
+struct XYTH_database_config {
     unsigned int max_x;
     unsigned int max_y;
     unsigned int pixels_per_group;
@@ -62,19 +71,19 @@ struct BGM_database_config {
 };
 
 // Macros for basic structure manipulation
-#define _BGM_DB_CONFIG_SET_MAX_COORD(cfg, x, y) \
+#define _XYTH_DB_CONFIG_SET_MAX_COORD(cfg, x, y) \
     do {                                        \
         cfg.max_x = x;                          \
         cfg.max_y = y;                          \
     } while (0)
 
-#define _BGM_DB_CONFIG_SET_DENSITY(cfg, ppg, dpg) \
+#define _XYTH_DB_CONFIG_SET_DENSITY(cfg, ppg, dpg) \
     do {                                          \
         cfg.pixels_per_group = ppg;               \
         cfg.degrees_per_group = dpg;              \
     } while (0)
 
-#define _BGM_DB_CONFIG_INIT(cfg)                          \
+#define _XYTH_DB_CONFIG_INIT(cfg)                          \
     do {                                                  \
         cfg.max_x = DB_MAX_X_COORD_DFL;                   \
         cfg.max_y = DB_MAX_Y_COORD_DFL;                   \
@@ -86,7 +95,7 @@ struct BGM_database_config {
 //
 // Database
 //
-struct _BGM_database {
+struct _XYTH_database {
     unsigned int templates_counter;
     unsigned int next_template_id;
     unsigned int **data;
@@ -97,14 +106,14 @@ struct _BGM_database {
 //
 // Context
 //
-struct BGM_context {
+struct XYTH_context {
     unsigned int magic_number;
-    struct _BGM_match_config match_cfg;
-    struct BGM_database_config db_cfg;
-    struct _BGM_database db;
+    struct _XYTH_match_config match_cfg;
+    struct XYTH_database_config db_cfg;
+    struct _XYTH_database db;
 };
 
-#define _BGM_IS_CONTEXT_INITIALIZED(ctx) \
-    ((ctx).magic_number == _BGM_CONTEXT_INIT_MAGIC_NUMBER)
+#define _XYTH_IS_CONTEXT_INITIALIZED(ctx) \
+    ((ctx).magic_number == _XYTH_CONTEXT_INIT_MAGIC_NUMBER)
 
 #endif // CONTEXT_H

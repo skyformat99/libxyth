@@ -1,27 +1,36 @@
-/**
- * @file   template-raw-image.c
- * @author rodrigo
- * @date   11/05/2015
- * @brief  Convertion raw gray-scale image => BGM_template.
- *
- * Copyright (C) Rodrigo Dias Correa - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- */
+// Copyright 2011-2017 Rodrigo Dias Correa
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
-#include <bergamota.h>
-#include <template.h>
 #include <debug.h>
+#include <template.h>
+#include <xyth.h>
 
-#include <mindtct/lfs.h>
 #include <mindtct/bozorth.h>
+#include <mindtct/lfs.h>
 
-#include "template-common.h"
 #include "config.h"
+#include "template-common.h"
 
 #define MINUTIA_MIN_RELIABILITY 45
 
-struct _BGM_image_line_boundaries {
+struct _XYTH_image_line_boundaries {
     unsigned int first_nonwhite_pixel;
     unsigned int last_nonwhite_pixel;
     bool all_white;
@@ -29,7 +38,7 @@ struct _BGM_image_line_boundaries {
 
 /* Copied from NBIS package's bz_sort.c */
 static int
-_BGM_sort_quality_decreasing(const void *a, const void *b)
+_XYTH_sort_quality_decreasing(const void *a, const void *b)
 {
     struct minutiae_struct *af;
     struct minutiae_struct *bf;
@@ -46,7 +55,7 @@ _BGM_sort_quality_decreasing(const void *a, const void *b)
 
 /* Copied from NBIS package's bz_sort.c */
 static int
-_BGM_sort_x_y(const void *a, const void *b)
+_XYTH_sort_x_y(const void *a, const void *b)
 {
     struct minutiae_struct *af;
     struct minutiae_struct *bf;
@@ -67,13 +76,13 @@ _BGM_sort_x_y(const void *a, const void *b)
     return 0;
 }
 
-static BGM_status
-_BGM_mindtct_get_minutiae(unsigned char *buffer,
-                          unsigned int width,
-                          unsigned int height,
-                          unsigned int pixel_depth,
-                          unsigned int resolution_in_ppi,
-                          struct BGM_template *tpl)
+static XYTH_status
+_XYTH_mindtct_get_minutiae(unsigned char *buffer,
+                           unsigned int width,
+                           unsigned int height,
+                           unsigned int pixel_depth,
+                           unsigned int resolution_in_ppi,
+                           struct XYTH_template *tpl)
 {
     double pixels_per_mm = (resolution_in_ppi / 25.4);
     int bw, bh, bd;
@@ -85,7 +94,7 @@ _BGM_mindtct_get_minutiae(unsigned char *buffer,
     int ox, oy, ot;
     int ret;
     struct minutiae_struct minutiae_nist_form[2000];
-    BGM_status status;
+    XYTH_status status;
     unsigned int min_index;
 
     // Get minutiae using mindtct's get_minutiae()
@@ -134,7 +143,7 @@ _BGM_mindtct_get_minutiae(unsigned char *buffer,
         qsort((void *)&minutiae_nist_form,
               (size_t)minutiae->num,
               sizeof(struct minutiae_struct),
-              _BGM_sort_quality_decreasing);
+              _XYTH_sort_quality_decreasing);
 
         // If found too many minutiae, then discard the ones with less quality.
         if ((unsigned int)minutiae->num > MAX_MINUTIAE_PER_TEMPLATE) {
@@ -144,8 +153,8 @@ _BGM_mindtct_get_minutiae(unsigned char *buffer,
         qsort((void *)&minutiae_nist_form,
               (size_t)minutiae->num,
               sizeof(struct minutiae_struct),
-              _BGM_sort_x_y);
-        // Copy data to a bergamota struct
+              _XYTH_sort_x_y);
+        // Copy data to a xyth's struct
         min_index = 0;
         for (int i = 0; i < minutiae->num; i++) {
             tpl->minutiae[min_index].neighbors = NULL;
@@ -161,40 +170,40 @@ _BGM_mindtct_get_minutiae(unsigned char *buffer,
             }
         }
         tpl->num_minutiae = min_index;
-        status = BGM_SUCCESS;
+        status = XYTH_SUCCESS;
         free_minutiae(minutiae);
     } else {
-        status = BGM_E_MINUTIAE_EXTRACTOR_ERROR;
+        status = XYTH_E_MINUTIAE_EXTRACTOR_ERROR;
     }
 
     PRINT_IF_ERROR(status);
     return status;
 }
 
-static BGM_status
-_BGM_template_from_raw_image(unsigned char *buffer,
-                             unsigned int width,
-                             unsigned int height,
-                             unsigned int pixel_depth,
-                             unsigned int resolution_in_ppi,
-                             struct BGM_template *tpl,
-                             unsigned int num_neighbors)
+static XYTH_status
+_XYTH_template_from_raw_image(unsigned char *buffer,
+                              unsigned int width,
+                              unsigned int height,
+                              unsigned int pixel_depth,
+                              unsigned int resolution_in_ppi,
+                              struct XYTH_template *tpl,
+                              unsigned int num_neighbors)
 {
-    BGM_status status;
+    XYTH_status status;
 
     tpl->minutiae = malloc(MAX_MINUTIAE_PER_TEMPLATE * sizeof(*tpl->minutiae));
     if (tpl->minutiae != NULL) {
-        status = _BGM_mindtct_get_minutiae(buffer,
-                                           width,
-                                           height,
-                                           pixel_depth,
-                                           resolution_in_ppi,
-                                           tpl);
-        if (status == BGM_SUCCESS) {
-            status = _BGM_intialize_template(tpl, num_neighbors);
+        status = _XYTH_mindtct_get_minutiae(buffer,
+                                            width,
+                                            height,
+                                            pixel_depth,
+                                            resolution_in_ppi,
+                                            tpl);
+        if (status == XYTH_SUCCESS) {
+            status = _XYTH_intialize_template(tpl, num_neighbors);
         }
     } else {
-        status = BGM_E_NO_MEMORY;
+        status = XYTH_E_NO_MEMORY;
     }
 
     PRINT_IF_ERROR(status);
@@ -205,14 +214,14 @@ _BGM_template_from_raw_image(unsigned char *buffer,
 ////////////////////////////////  P U B L I C  /////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-BGM_status
-BGM_template_from_raw_image(unsigned char *buffer,
-                            unsigned int width,
-                            unsigned int height,
-                            unsigned int pixel_depth,
-                            unsigned int resolution_in_ppi,
-                            struct BGM_template *tpl,
-                            unsigned int num_neighbors)
+XYTH_status
+XYTH_template_from_raw_image(unsigned char *buffer,
+                             unsigned int width,
+                             unsigned int height,
+                             unsigned int pixel_depth,
+                             unsigned int resolution_in_ppi,
+                             struct XYTH_template *tpl,
+                             unsigned int num_neighbors)
 {
     int status;
 
@@ -229,25 +238,25 @@ BGM_template_from_raw_image(unsigned char *buffer,
         PRINT_IF_NULL(tpl);
         PRINT_IF_TRUE(num_neighbors == 0);
 
-        status = BGM_E_INVALID_PARAMETER;
+        status = XYTH_E_INVALID_PARAMETER;
         PRINT_IF_ERROR(status);
         return status;
     }
 
-    if (!_BGM_IS_TEMPLATE_INITIALIZED(*tpl)) {
-        _BGM_reset_template(tpl);
-        status = _BGM_template_from_raw_image(buffer,
-                                              width,
-                                              height,
-                                              pixel_depth,
-                                              resolution_in_ppi,
-                                              tpl,
-                                              num_neighbors);
-        if (status != BGM_SUCCESS) {
-            BGM_destroy_template(tpl);
+    if (!_XYTH_IS_TEMPLATE_INITIALIZED(*tpl)) {
+        _XYTH_reset_template(tpl);
+        status = _XYTH_template_from_raw_image(buffer,
+                                               width,
+                                               height,
+                                               pixel_depth,
+                                               resolution_in_ppi,
+                                               tpl,
+                                               num_neighbors);
+        if (status != XYTH_SUCCESS) {
+            XYTH_destroy_template(tpl);
         }
     } else {
-        status = BGM_E_ALREADY_INITIALIZED;
+        status = XYTH_E_ALREADY_INITIALIZED;
     }
 
     PRINT_IF_ERROR(status);

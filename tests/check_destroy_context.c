@@ -1,42 +1,51 @@
-/**
- * @file   check_destroy_context.c
- * @author rodrigo
- * @date   22/03/2015
- * @brief  Tests for 'BGM_destroy_context'.
- *
- * Copyright (C) Rodrigo Dias Correa - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- */
+// Copyright 2011-2017 Rodrigo Dias Correa
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 #include <check.h>
-#include <bergamota.h>
+#include <xyth.h>
 
 START_TEST(simple_success)
 {
-    BGM_status status;
-    struct BGM_context ctx = {0};
+    XYTH_status status;
+    struct XYTH_context ctx = {0};
 
-    status = BGM_create_context(&ctx, NULL);
-    ck_assert_int_eq(status, BGM_SUCCESS);
-    ck_assert_int_eq(ctx.magic_number, _BGM_CONTEXT_INIT_MAGIC_NUMBER);
-    BGM_destroy_context(&ctx);
-    ck_assert_int_ne(ctx.magic_number, _BGM_CONTEXT_INIT_MAGIC_NUMBER);
+    status = XYTH_create_context(&ctx, NULL);
+    ck_assert_int_eq(status, XYTH_SUCCESS);
+    ck_assert_int_eq(ctx.magic_number, _XYTH_CONTEXT_INIT_MAGIC_NUMBER);
+    XYTH_destroy_context(&ctx);
+    ck_assert_int_ne(ctx.magic_number, _XYTH_CONTEXT_INIT_MAGIC_NUMBER);
 }
 END_TEST
 
 START_TEST(null_context)
 {
-    BGM_destroy_context(NULL);
+    XYTH_destroy_context(NULL);
 }
 END_TEST
 
 START_TEST(invalid_context)
 {
-    struct BGM_context ctx = {0};
+    struct XYTH_context ctx = {0};
 
-    BGM_destroy_context(&ctx);
-    ck_assert_int_ne(ctx.magic_number, _BGM_CONTEXT_INIT_MAGIC_NUMBER);
+    XYTH_destroy_context(&ctx);
+    ck_assert_int_ne(ctx.magic_number, _XYTH_CONTEXT_INIT_MAGIC_NUMBER);
 }
 END_TEST
 

@@ -1,18 +1,27 @@
-/**
- * @file   template-common.c
- * @author rodrigo
- * @date   13/10/2014
- * @brief  Common functions to create BGM_template.
- *
- * Copyright (C) Rodrigo Dias Correa - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- */
+// Copyright 2011-2017 Rodrigo Dias Correa
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 #define _GNU_SOURCE
-#include <bergamota.h>
-#include <template.h>
 #include <debug.h>
+#include <template.h>
+#include <xyth.h>
 
 #include <math.h>
 #include <stdlib.h>
@@ -21,11 +30,11 @@
  * The connection between two minutiae, represented as a vector.
  * Using euclidean vector terminology
  */
-struct _BGM_connection {
+struct _XYTH_connection {
     unsigned int magnitude;
     unsigned int direction;
-    struct _BGM_minutia *first_minutia;
-    struct _BGM_minutia *second_minutia;
+    struct _XYTH_minutia *first_minutia;
+    struct _XYTH_minutia *second_minutia;
 };
 
 /**
@@ -38,7 +47,7 @@ struct _BGM_connection {
  * @return The angle in degrees (0 .. 359)
  */
 static unsigned int
-_BGM_xy_to_angle(int x, int y)
+_XYTH_xy_to_angle(int x, int y)
 {
     double direction;
 
@@ -69,7 +78,10 @@ _BGM_xy_to_angle(int x, int y)
  * @param[out] y            Calculated Y component
  */
 static void
-_BGM_angle_to_xy(unsigned int magnitude, unsigned int direction, int *x, int *y)
+_XYTH_angle_to_xy(unsigned int magnitude,
+                  unsigned int direction,
+                  int *x,
+                  int *y)
 {
     double rad = direction * (M_PI / 180);
 
@@ -89,13 +101,13 @@ _BGM_angle_to_xy(unsigned int magnitude, unsigned int direction, int *x, int *y)
  * @retval  1 (Connection1 > Connection2).
  */
 static int
-_BGM_sort_connections_by_magnitude(const void *ptr1, const void *ptr2)
+_XYTH_sort_connections_by_magnitude(const void *ptr1, const void *ptr2)
 {
-    struct _BGM_connection *connection1;
-    struct _BGM_connection *connection2;
+    struct _XYTH_connection *connection1;
+    struct _XYTH_connection *connection2;
 
-    connection1 = (struct _BGM_connection *)ptr1;
-    connection2 = (struct _BGM_connection *)ptr2;
+    connection1 = (struct _XYTH_connection *)ptr1;
+    connection2 = (struct _XYTH_connection *)ptr2;
 
     if (connection1->magnitude < connection2->magnitude) {
         return -1;
@@ -107,9 +119,9 @@ _BGM_sort_connections_by_magnitude(const void *ptr1, const void *ptr2)
 }
 
 static void
-_BGM_connection_from_minutiae(struct _BGM_minutia *first_minutia,
-                              struct _BGM_minutia *second_minutia,
-                              struct _BGM_connection *connection)
+_XYTH_connection_from_minutiae(struct _XYTH_minutia *first_minutia,
+                               struct _XYTH_minutia *second_minutia,
+                               struct _XYTH_connection *connection)
 {
     int dx;
     int dy;
@@ -119,7 +131,7 @@ _BGM_connection_from_minutiae(struct _BGM_minutia *first_minutia,
 
     connection->magnitude =
         sqrt(pow(dx, 2) + pow(dy, 2)); // Pythagorean theorem
-    connection->direction = _BGM_xy_to_angle(dx, dy);
+    connection->direction = _XYTH_xy_to_angle(dx, dy);
     connection->first_minutia = first_minutia;
     connection->second_minutia = second_minutia;
 }
@@ -132,12 +144,12 @@ _BGM_connection_from_minutiae(struct _BGM_minutia *first_minutia,
  * @param[out] connections      Connection created from template's minutiae.
  * @param[out] num_connections  Number of connections created.
  *
- * @retval  BGM_SUCCESS     Connections created successfully.
+ * @retval  XYTH_SUCCESS     Connections created successfully.
  */
 static void
-_BGM_connections_from_template(struct BGM_template *tpl,
-                               struct _BGM_connection *connections,
-                               unsigned int *num_connections)
+_XYTH_connections_from_template(struct XYTH_template *tpl,
+                                struct _XYTH_connection *connections,
+                                unsigned int *num_connections)
 {
     *num_connections = 0;
 
@@ -145,9 +157,9 @@ _BGM_connections_from_template(struct BGM_template *tpl,
     for (unsigned int i = 0; i < (tpl->num_minutiae - 1); i++) {
         for (unsigned int j = (i + 1); j < tpl->num_minutiae; j++) {
             // Create connection using data from the two minutiae
-            _BGM_connection_from_minutiae(&tpl->minutiae[i],
-                                          &tpl->minutiae[j],
-                                          &connections[*num_connections]);
+            _XYTH_connection_from_minutiae(&tpl->minutiae[i],
+                                           &tpl->minutiae[j],
+                                           &connections[*num_connections]);
             (*num_connections)++;
         }
     }
@@ -155,12 +167,12 @@ _BGM_connections_from_template(struct BGM_template *tpl,
     // Sort connections by magnitude
     qsort((void *)connections,
           *num_connections,
-          sizeof(struct _BGM_connection),
-          _BGM_sort_connections_by_magnitude);
+          sizeof(struct _XYTH_connection),
+          _XYTH_sort_connections_by_magnitude);
 }
 
 static inline void
-_BGM_destroy_minutia(struct _BGM_minutia *minutia)
+_XYTH_destroy_minutia(struct _XYTH_minutia *minutia)
 {
     if (minutia->neighbors != NULL) {
         free(minutia->neighbors);
@@ -170,10 +182,10 @@ _BGM_destroy_minutia(struct _BGM_minutia *minutia)
 }
 
 static void
-_BGM_create_minutia_neighbors(struct _BGM_minutia *minutia,
-                              struct _BGM_connection *connections,
-                              unsigned int num_connections,
-                              unsigned int max_neighbors)
+_XYTH_create_minutia_neighbors(struct _XYTH_minutia *minutia,
+                               struct _XYTH_connection *connections,
+                               unsigned int num_connections,
+                               unsigned int max_neighbors)
 {
     unsigned int neighbor_count = 0;
     unsigned int temp_angle;
@@ -182,7 +194,7 @@ _BGM_create_minutia_neighbors(struct _BGM_minutia *minutia,
     for (unsigned int i = 0;
          (i < num_connections) && (neighbor_count < max_neighbors);
          i++) {
-        struct _BGM_neighbor *cur_neighbor;
+        struct _XYTH_neighbor *cur_neighbor;
         cur_neighbor = &minutia->neighbors[neighbor_count];
         // Check whether the minutia is the first minutia of current connection
         if (minutia->id == connections[i].first_minutia->id) {
@@ -215,10 +227,10 @@ _BGM_create_minutia_neighbors(struct _BGM_minutia *minutia,
             : minutia->angle - cur_neighbor->relative_angle;
         // Calculate relative_x and relative_y from connection's magnitude and
         // temp_angle
-        _BGM_angle_to_xy(connections[i].magnitude,
-                         temp_angle,
-                         &cur_neighbor->relative_x,
-                         &cur_neighbor->relative_y);
+        _XYTH_angle_to_xy(connections[i].magnitude,
+                          temp_angle,
+                          &cur_neighbor->relative_x,
+                          &cur_neighbor->relative_y);
 
         neighbor_count++;
     }
@@ -227,9 +239,9 @@ _BGM_create_minutia_neighbors(struct _BGM_minutia *minutia,
 }
 
 void
-_BGM_reset_template(struct BGM_template *tpl)
+_XYTH_reset_template(struct XYTH_template *tpl)
 {
-    tpl->magic_num = _BGM_TEMPLATE_INIT_MAGIC_NUMBER;
+    tpl->magic_num = _XYTH_TEMPLATE_INIT_MAGIC_NUMBER;
     tpl->minutiae = NULL;
     tpl->num_minutiae = 0;
 }
@@ -244,35 +256,35 @@ _BGM_reset_template(struct BGM_template *tpl)
  * template.
  * @param[in]     num_connections   Number of connections in 'connections'.
  *
- * @return BGM_SUCCESS  Only success for now (could it be a void function?).
+ * @return XYTH_SUCCESS  Only success for now (could it be a void function?).
  */
-static BGM_status
-_BGM_create_template_neighbors(struct BGM_template *tpl,
-                               struct _BGM_connection *connections,
-                               unsigned int num_connections,
-                               unsigned int num_neighbors)
+static XYTH_status
+_XYTH_create_template_neighbors(struct XYTH_template *tpl,
+                                struct _XYTH_connection *connections,
+                                unsigned int num_connections,
+                                unsigned int num_neighbors)
 {
-    BGM_status status = BGM_SUCCESS;
+    XYTH_status status = XYTH_SUCCESS;
 
     // For each minutia in template
     for (unsigned int i = 0; i < tpl->num_minutiae; i++) {
-        struct _BGM_minutia *cur_minutia = &tpl->minutiae[i];
+        struct _XYTH_minutia *cur_minutia = &tpl->minutiae[i];
         // Allocate memory for minutia's neighbors
         cur_minutia->neighbors =
             malloc(num_neighbors * sizeof(*cur_minutia->neighbors));
         if (cur_minutia->neighbors != NULL) {
             // Populate minutia's neighbors using information from connections
-            _BGM_create_minutia_neighbors(cur_minutia,
-                                          connections,
-                                          num_connections,
-                                          num_neighbors);
+            _XYTH_create_minutia_neighbors(cur_minutia,
+                                           connections,
+                                           num_connections,
+                                           num_neighbors);
         } else {
             // If memory allocation fails for a minutia's neighbors, free the
             // memory previously
             // allocated for other minutiae
-            status = BGM_E_NO_MEMORY;
+            status = XYTH_E_NO_MEMORY;
             for (unsigned int j = 0; j < i; j++) {
-                _BGM_destroy_minutia(&tpl->minutiae[j]);
+                _XYTH_destroy_minutia(&tpl->minutiae[j]);
             }
             break;
         }
@@ -287,14 +299,14 @@ _BGM_create_template_neighbors(struct BGM_template *tpl,
  *
  * @param[in,out] tpl Input template, which will have the minutiae updated.
  *
- * @retval BGM_SUCCESS  Minutiae's neghborhood updated successfully.
- * @retval BGM_E_GENERIC    An error ocurred.
+ * @retval XYTH_SUCCESS  Minutiae's neghborhood updated successfully.
+ * @retval XYTH_E_GENERIC    An error ocurred.
  */
-BGM_status
-_BGM_intialize_template(struct BGM_template *tpl, unsigned int num_neighbors)
+XYTH_status
+_XYTH_intialize_template(struct XYTH_template *tpl, unsigned int num_neighbors)
 {
-    BGM_status status;
-    struct _BGM_connection *connections;
+    XYTH_status status;
+    struct _XYTH_connection *connections;
     unsigned int num_connections;
 
     // There is a minimun number of minutiae, depending on the required number
@@ -304,24 +316,24 @@ _BGM_intialize_template(struct BGM_template *tpl, unsigned int num_neighbors)
                              * sizeof(*connections));
         if (connections != NULL) {
             // Create connections between every pair of minutiae
-            _BGM_connections_from_template(tpl, connections, &num_connections);
+            _XYTH_connections_from_template(tpl, connections, &num_connections);
             // Identify the neighborhood of each minutia
-            status = _BGM_create_template_neighbors(tpl,
-                                                    connections,
-                                                    num_connections,
-                                                    num_neighbors);
-            if (status == BGM_SUCCESS) {
+            status = _XYTH_create_template_neighbors(tpl,
+                                                     connections,
+                                                     num_connections,
+                                                     num_neighbors);
+            if (status == XYTH_SUCCESS) {
                 // TODO: Review it. This assignment is also done in
-                // '_BGM_reset_template'
-                tpl->magic_num = _BGM_TEMPLATE_INIT_MAGIC_NUMBER;
+                // '_XYTH_reset_template'
+                tpl->magic_num = _XYTH_TEMPLATE_INIT_MAGIC_NUMBER;
             }
             //
             free(connections);
         } else {
-            status = BGM_E_NO_MEMORY;
+            status = XYTH_E_NO_MEMORY;
         }
     } else {
-        status = BGM_E_TOO_FEW_MINUTIAE;
+        status = XYTH_E_TOO_FEW_MINUTIAE;
     }
 
     PRINT_IF_ERROR(status);
@@ -333,13 +345,13 @@ _BGM_intialize_template(struct BGM_template *tpl, unsigned int num_neighbors)
 ////////////////////////////////////////////////////////////////////////////////
 
 void
-BGM_destroy_template(struct BGM_template *tpl)
+XYTH_destroy_template(struct XYTH_template *tpl)
 {
     if (tpl != NULL) {
-        if (_BGM_IS_TEMPLATE_INITIALIZED(*tpl)) {
+        if (_XYTH_IS_TEMPLATE_INITIALIZED(*tpl)) {
             if (tpl->minutiae != NULL) {
                 for (unsigned int i = 0; i < tpl->num_minutiae; i++) {
-                    _BGM_destroy_minutia(&tpl->minutiae[i]);
+                    _XYTH_destroy_minutia(&tpl->minutiae[i]);
                 }
                 free(tpl->minutiae);
             }

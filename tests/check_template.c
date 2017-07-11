@@ -1,13 +1,22 @@
-/**
- * @file   check_template.c
- * @author rodrigo
- * @date   16/03/2015
- * @brief  Test suite to exercise functions from template.c.
- *
- * Copyright (C) Rodrigo Dias Correa - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- */
+// Copyright 2011-2017 Rodrigo Dias Correa
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 #include <check.h>
 
@@ -16,9 +25,6 @@ TCase *template_from_xyt_tcase(void);
 
 // From check_destroy_template.c
 TCase *destroy_template_tcase(void);
-
-// From check_template_from_raw_image.c
-TCase *template_from_raw_image_tcase(void);
 
 Suite *
 template_suite(void)
@@ -29,7 +35,6 @@ template_suite(void)
 
     suite_add_tcase(suite, template_from_xyt_tcase());
     suite_add_tcase(suite, destroy_template_tcase());
-    suite_add_tcase(suite, template_from_raw_image_tcase());
 
     return suite;
 }

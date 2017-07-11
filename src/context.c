@@ -1,26 +1,35 @@
-/**
- * @file   match_context.c
- * @author rodrigo
- * @date   04/02/2015
- * @brief  Functions to Create/Destroy context.
- *
- * Copyright (C) Rodrigo Dias Correa - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- */
+// Copyright 2011-2017 Rodrigo Dias Correa
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 #include <stdlib.h>
 
-#include <bergamota.h>
-#include <context.h>
-#include <template.h>
 #include <config.h>
+#include <context.h>
 #include <debug.h>
+#include <template.h>
+#include <xyth.h>
 
 #include "common.h"
 
 static void
-_BGM_set_dfl_match_config(struct _BGM_match_config *cfg)
+_XYTH_set_dfl_match_config(struct _XYTH_match_config *cfg)
 {
     cfg->failure_threshold = MATCH_FAILURE_THRESHOLD_DFL;
     cfg->minutia_threshold = MATCH_MINUTIA_THRESHOLD_DFL;
@@ -31,7 +40,7 @@ _BGM_set_dfl_match_config(struct _BGM_match_config *cfg)
 }
 
 static void
-_BGM_set_dfl_database_config(struct BGM_database_config *db_cfg)
+_XYTH_set_dfl_database_config(struct XYTH_database_config *db_cfg)
 {
     db_cfg->degrees_per_group = DB_DEGREES_PER_GROUP_DFL;
     db_cfg->max_x = DB_MAX_X_COORD_DFL;
@@ -40,11 +49,11 @@ _BGM_set_dfl_database_config(struct BGM_database_config *db_cfg)
     db_cfg->alloc_step = DB_ALLOC_STEP_DFL;
 }
 
-static BGM_status
-_BGM_set_custom_database_config(struct BGM_database_config *in,
-                                struct BGM_database_config *out)
+static XYTH_status
+_XYTH_set_custom_database_config(struct XYTH_database_config *in,
+                                 struct XYTH_database_config *out)
 {
-    BGM_status status;
+    XYTH_status status;
 
     if (in->degrees_per_group < 360 && in->max_x > 0 && in->max_y > 0
         && in->pixels_per_group > 0
@@ -55,18 +64,18 @@ _BGM_set_custom_database_config(struct BGM_database_config *in,
         out->pixels_per_group = in->pixels_per_group;
         out->alloc_step = in->alloc_step;
 
-        status = BGM_SUCCESS;
+        status = XYTH_SUCCESS;
     } else {
-        status = BGM_E_INVALID_CONFIGURATION;
+        status = XYTH_E_INVALID_CONFIGURATION;
     }
 
     return status;
 }
 
-static BGM_status
-_BGM_create_database(struct BGM_context *ctx)
+static XYTH_status
+_XYTH_create_database(struct XYTH_context *ctx)
 {
-    BGM_status status;
+    XYTH_status status;
     unsigned int num_groups;
     unsigned int x_groups, y_groups, t_groups;
 
@@ -75,7 +84,7 @@ _BGM_create_database(struct BGM_context *ctx)
 
     if (ctx->db_cfg.degrees_per_group != 0
         && ctx->db_cfg.pixels_per_group != 0) {
-        _BGM_calc_num_groups(ctx, &x_groups, &y_groups, &t_groups);
+        _XYTH_calc_num_groups(ctx, &x_groups, &y_groups, &t_groups);
         num_groups = x_groups * y_groups * t_groups;
         // Each group will hold a pointer
         ctx->db.data = calloc(num_groups, sizeof(int *));
@@ -85,16 +94,16 @@ _BGM_create_database(struct BGM_context *ctx)
             if (ctx->db.alloc_counter != NULL) {
                 ctx->db.num_groups = num_groups;
                 PDEBUG("num_groups: %d\n", num_groups);
-                status = BGM_SUCCESS;
+                status = XYTH_SUCCESS;
             } else {
                 free(ctx->db.data);
-                status = BGM_E_NO_MEMORY;
+                status = XYTH_E_NO_MEMORY;
             }
         }
     } else {
         PRINT_IF_TRUE(ctx->db_cfg.degrees_per_group == 0);
         PRINT_IF_TRUE(ctx->db_cfg.pixels_per_group == 0);
-        status = BGM_E_INVALID_CONFIGURATION;
+        status = XYTH_E_INVALID_CONFIGURATION;
     }
 
     PRINT_IF_ERROR(status);
@@ -102,7 +111,7 @@ _BGM_create_database(struct BGM_context *ctx)
 }
 
 static void
-_BGM_destroy_database(struct BGM_context *ctx)
+_XYTH_destroy_database(struct XYTH_context *ctx)
 {
     if (ctx->db.alloc_counter != NULL) {
         if (ctx->db.data != NULL) {
@@ -126,91 +135,92 @@ _BGM_destroy_database(struct BGM_context *ctx)
 ////////////////////////////////  P U B L I C  /////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-BGM_status
-BGM_set_match_tolerances(struct BGM_context *ctx,
-                         unsigned int x_tol,
-                         unsigned int y_tol,
-                         unsigned int angle_tol)
+XYTH_status
+XYTH_set_match_tolerances(struct XYTH_context *ctx,
+                          unsigned int x_tol,
+                          unsigned int y_tol,
+                          unsigned int angle_tol)
 {
-    BGM_status status;
+    XYTH_status status;
 
     if (ctx == NULL) {
-        status = BGM_E_INVALID_PARAMETER;
+        status = XYTH_E_INVALID_PARAMETER;
         PRINT_IF_NULL(ctx);
         PRINT_IF_ERROR(status);
         return status;
     }
 
-    if (_BGM_IS_CONTEXT_INITIALIZED(*ctx)) {
+    if (_XYTH_IS_CONTEXT_INITIALIZED(*ctx)) {
         ctx->match_cfg.x_tolerance = x_tol;
         ctx->match_cfg.y_tolerance = y_tol;
         ctx->match_cfg.t_tolerance = angle_tol;
-        status = BGM_SUCCESS;
+        status = XYTH_SUCCESS;
     } else {
-        status = BGM_E_NOT_INITIALIZED;
+        status = XYTH_E_NOT_INITIALIZED;
     }
 
     PRINT_IF_ERROR(status);
     return status;
 }
 
-BGM_status
-BGM_set_match_thresholds(struct BGM_context *ctx,
-                         unsigned int minutia_threshold,
-                         unsigned int template_threshold,
-                         unsigned int failure_threshold)
+XYTH_status
+XYTH_set_match_thresholds(struct XYTH_context *ctx,
+                          unsigned int minutia_threshold,
+                          unsigned int template_threshold,
+                          unsigned int failure_threshold)
 {
-    BGM_status status;
+    XYTH_status status;
 
     if (ctx == NULL) {
-        status = BGM_E_INVALID_PARAMETER;
+        status = XYTH_E_INVALID_PARAMETER;
         PRINT_IF_NULL(ctx);
         PRINT_IF_ERROR(status);
         return status;
     }
 
-    if (_BGM_IS_CONTEXT_INITIALIZED(*ctx)) {
+    if (_XYTH_IS_CONTEXT_INITIALIZED(*ctx)) {
         ctx->match_cfg.minutia_threshold = minutia_threshold;
         ctx->match_cfg.template_threshold = template_threshold;
         ctx->match_cfg.failure_threshold = failure_threshold;
-        status = BGM_SUCCESS;
+        status = XYTH_SUCCESS;
     } else {
-        status = BGM_E_NOT_INITIALIZED;
+        status = XYTH_E_NOT_INITIALIZED;
     }
 
     PRINT_IF_ERROR(status);
     return status;
 }
 
-BGM_status
-BGM_create_context(struct BGM_context *ctx, struct BGM_database_config *db_cfg)
+XYTH_status
+XYTH_create_context(struct XYTH_context *ctx,
+                    struct XYTH_database_config *db_cfg)
 {
-    BGM_status status;
+    XYTH_status status;
 
     if (ctx == NULL) {
         PRINT_IF_NULL(ctx);
-        status = BGM_E_INVALID_PARAMETER;
+        status = XYTH_E_INVALID_PARAMETER;
         PRINT_IF_ERROR(status);
         return status;
     }
 
-    if (!_BGM_IS_CONTEXT_INITIALIZED(*ctx)) {
-        _BGM_set_dfl_match_config(&ctx->match_cfg);
+    if (!_XYTH_IS_CONTEXT_INITIALIZED(*ctx)) {
+        _XYTH_set_dfl_match_config(&ctx->match_cfg);
 
         if (db_cfg != NULL) {
-            status = _BGM_set_custom_database_config(db_cfg, &ctx->db_cfg);
+            status = _XYTH_set_custom_database_config(db_cfg, &ctx->db_cfg);
         } else {
-            _BGM_set_dfl_database_config(&ctx->db_cfg);
-            status = BGM_SUCCESS;
+            _XYTH_set_dfl_database_config(&ctx->db_cfg);
+            status = XYTH_SUCCESS;
         }
-        if (status == BGM_SUCCESS) {
-            status = _BGM_create_database(ctx);
-            if (status == BGM_SUCCESS) {
-                ctx->magic_number = _BGM_CONTEXT_INIT_MAGIC_NUMBER;
+        if (status == XYTH_SUCCESS) {
+            status = _XYTH_create_database(ctx);
+            if (status == XYTH_SUCCESS) {
+                ctx->magic_number = _XYTH_CONTEXT_INIT_MAGIC_NUMBER;
             }
         }
     } else {
-        status = BGM_E_ALREADY_INITIALIZED;
+        status = XYTH_E_ALREADY_INITIALIZED;
     }
 
     PRINT_IF_ERROR(status);
@@ -218,38 +228,38 @@ BGM_create_context(struct BGM_context *ctx, struct BGM_database_config *db_cfg)
 }
 
 void
-BGM_destroy_context(struct BGM_context *ctx)
+XYTH_destroy_context(struct XYTH_context *ctx)
 {
     if (ctx != NULL) {
-        if (_BGM_IS_CONTEXT_INITIALIZED(*ctx)) {
-            _BGM_destroy_database(ctx);
+        if (_XYTH_IS_CONTEXT_INITIALIZED(*ctx)) {
+            _XYTH_destroy_database(ctx);
             ctx->magic_number = 0;
         } else {
-            PRINT_IF_TRUE(ctx->magic_number != _BGM_CONTEXT_INIT_MAGIC_NUMBER);
+            PRINT_IF_TRUE(ctx->magic_number != _XYTH_CONTEXT_INIT_MAGIC_NUMBER);
         }
     } else {
         PRINT_IF_NULL(ctx);
     }
 }
 
-BGM_status
-BGM_get_template_counter(struct BGM_context *ctx, unsigned int *tpl_counter)
+XYTH_status
+XYTH_get_template_counter(struct XYTH_context *ctx, unsigned int *tpl_counter)
 {
-    BGM_status status;
+    XYTH_status status;
 
     if (ctx == NULL || tpl_counter == NULL) {
         PRINT_IF_NULL(ctx);
         PRINT_IF_NULL(tpl_counter);
-        status = BGM_E_INVALID_PARAMETER;
+        status = XYTH_E_INVALID_PARAMETER;
         PRINT_IF_ERROR(status);
         return status;
     }
 
-    if (_BGM_IS_CONTEXT_INITIALIZED(*ctx)) {
+    if (_XYTH_IS_CONTEXT_INITIALIZED(*ctx)) {
         *tpl_counter = ctx->db.templates_counter;
-        status = BGM_SUCCESS;
+        status = XYTH_SUCCESS;
     } else {
-        status = BGM_E_NOT_INITIALIZED;
+        status = XYTH_E_NOT_INITIALIZED;
     }
 
     PRINT_IF_ERROR(status);
