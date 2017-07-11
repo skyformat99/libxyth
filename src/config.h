@@ -21,16 +21,6 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-/*
- *DB config* -- Creation time only
- DB_MAX_X_COORD_DFL........Highest possible value for a minutia's X coordinate.
- DB_MAX_Y_COORD_DFL........Highest possible value for a minutia's Y coordinate.
- DB_PIXELS_PER_GROUP_DFL...How many x/y units will be consider in the same
- group.
- DB_DEGREES_PER_GROUP_DFL..How many degrees units wil be consider in the same
- group.
-*/
-
 // Template config.
 #define MAX_MINUTIAE_PER_TEMPLATE 64
 #define NEIGHBORS_PER_MINUTIAE_DFL 20
