@@ -64,14 +64,72 @@ typedef enum {
 #define XYTH_DB_CONFIG_SET_DENSITY(cfg, ppg, dpg)                              \
     _XYTH_DB_CONFIG_SET_DENSITY(cfg, ppg, dpg)
 
+/**
+ * Creates a fingerprint identification context.
+ * @note Use XYTH_destroy_context() to release the resources allocated for the
+ *       context.
+ *
+ * @param[out]  ctx     Pointer to an uninitialized identification context.
+ * @param[in]   db_cfg  Database configuration data, which controls how the
+ *                      context's internal database is created. May be NULL.
+ *
+ * @retval XYTH_SUCCESS                  Context created successfully.
+ * @retval XYTH_E_INVALID_PARAMETER      'ctx' is NULL.
+ * @retval XYTH_E_ALREADY_INITIALIZED    'ctx' was already initialized.
+ * @retval XYTH_E_NO_MEMORY              System is out of memory.
+ * @retval XYTH_E_INVALID_CONFIGURATION  The configuration in 'db_cfg' is not
+ *                                       valid.
+ */
 XYTH_status XYTH_create_context(struct XYTH_context *ctx,
                                 struct XYTH_database_config *db_cfg);
 
+/**
+ * Releases the resources associated with a context.
+ *
+ * @param[in]  ctx  Pointer to a previously initialized context.
+ */
 void XYTH_destroy_context(struct XYTH_context *ctx);
 
+/**
+ * Adds a fingerprint template to an identification context.
+ *
+ * @param[in]   ctx     The identification context.
+ * @param[in]   tpl     The template that will be added to the context.
+ * @param[out]  tpl_id  The id associated with the template added. This id is
+ *                      unique in this context.
+ *
+ * @retval XYTH_SUCCESS               Template added successfully.
+ * @retval XYTH_E_INVALID_PARAMETER   'ctx', 'tpl', or 'tpl_id' is NULL.
+ * @retval XYTH_E_NOT_INITIALIZED     'ctx', or 'tpl' is invalid.
+ * @retval XYTH_E_TOO_FEW_MINUTIAE    The template doesn't have enough minutiae.
+ * @retval XYTH_E_NO_MEMORY           System is out of memory.
+ * @retval XYTH_E_VALUE_OUT_OF_RANGE  The template is not compatible with the
+ *                                    context. It contains values (X, Y, or
+ *                                    THETA) that are greater than the maximum
+ *                                    values allowed for the context.
+ */
 XYTH_status XYTH_add_template(struct XYTH_context *ctx,
                               struct XYTH_template *tpl, unsigned int *tpl_id);
 
+/**
+ * Removes a fingerprint template from an identification context.
+ *
+ * @param[in]  ctx     The identification context.
+ * @param[in]  tpl     The template that will be removed from the context.
+ *                     @note The template must be the same (have the same
+ *                     values) used in XYTH_add_template(), otherwise an
+ *                     incomplete removal may occur.
+ * @param[in]  tpl_id  The template id assigned by XYTH_add_template().
+ *
+ * @retval XYTH_SUCCESS               Template totally removed.
+ * @retval XYTH_E_INVALID_PARAMETER   'ctx', or 'tpl' is NULL.
+ * @retval XYTH_E_NOT_INITIALIZED     'ctx', or 'tpl' is invalid.
+ * @retval XYTH_E_TOO_FEW_MINUTIAE    The # of minutiae in the template is zero.
+ * @retval XYTH_E_INCOMPLETE_REMOVAL  Some minutiae in the template were not
+ *                                    found in the context.
+ * @retval XYTH_E_NOT_FOUND           No references to the template were found
+ *                                    in the context.
+ */
 XYTH_status XYTH_remove_template(struct XYTH_context *ctx,
                                  struct XYTH_template *tpl,
                                  unsigned int tpl_id);
